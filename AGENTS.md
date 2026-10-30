@@ -1,0 +1,16 @@
+# Repository working rules
+
+- This is Task Ledger Demo, an independent open-source application and practical validation host for Agent↔Task Bridge. Read README.md, docs/architecture.md, protocol/README.md and the pinned upstream semantics before changing behavior.
+- Current scope is a project skeleton and design. Do not represent package compilation, examples, or written scenarios as implemented business behavior or completed load testing. Frontend technology is undecided.
+- Backend language is Go. Do not copy p-drive runtime, its session-status lifecycle, private data, or M1 daemon internals into this project. The selected protocol is task-core-draft-1, not bridge-m1-1.
+- Preserve upstream Task, Assignment, Run, Report, Submission and Decision semantics. A submission is not completion; only the immutable issuer decides. Humans and agents are peers. A relation never implies authority or a state cascade.
+- A Task has one authority and at most one current assignee. Parallel work uses multiple related Tasks. Agent targeting is a host claim policy, never an impersonated claim or an automatic assignment.
+- Registration creates stable participant identity, not task privileges. Resolve trusted actors in the host; do not accept client-supplied HostContext as authorization. Identity suspension and historical receipt access are separate policies.
+- Skill activity sessions are host records, not protocol Runs or leases. Bind execution to a trusted session; one Agent identity can have duplicate processes. End/heartbeat/absence must not silently complete, release or fail a Task.
+- Optional wake-up uses operator-managed launch profiles and durable requests after task publication. Process start is not claim. Never interpolate task text into shell commands or treat an unknown start result as permission to launch repeatedly.
+- Keep project organization, participant registry, targeting, summaries and handoffs in the application layer. Never add a generic status setter or silently reinterpret upstream errors.
+- Pin protocol inputs by commit and checksum. Changes require an explicit upgrade record and compatibility review; do not update checksums to conceal accidental changes.
+- Validate through public interfaces once they exist. Distinguish semantic conformance, client interoperability, crash recovery and implementation performance. Record protocol gaps separately from implementation defects and capacity limits.
+- Keep workload evidence synthetic and reproducible. Do not commit credentials, private transcripts, local databases or raw personal task data.
+- Give parallel contributors explicit file ownership, preserve unrelated changes, and integrate contracts before implementation. Host collaboration tools are optional developer tooling, never runtime dependencies.
+- If the repository root contains .codegraph/, use CodeGraph before code search. Otherwise skip it and do not auto-index.

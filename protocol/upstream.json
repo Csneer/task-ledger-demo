@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/Csneer/agent-task-bridge",
+  "commit": "e6dae9a6127537af94f0f5127e8d590a1e6a3f1a",
+  "protocol_version": "task-core-draft-1",
+  "artifacts": [
+    {
+      "local_path": "upstream/schema.json",
+      "source_path": "protocol/core-draft/schema.json"
+    },
+    {
+      "local_path": "upstream/LICENSE",
+      "source_path": "LICENSE"
+    }
+  ],
+  "semantics_url": "https://github.com/Csneer/agent-task-bridge/blob/e6dae9a6127537af94f0f5127e8d590a1e6a3f1a/protocol/core-draft/semantics.md"
+}
