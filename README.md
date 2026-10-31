@@ -4,14 +4,14 @@
 
 A personal task ledger for people and agents — and a proving ground for an open task protocol.
 
-[![Skeleton checks](https://github.com/Csneer/task-ledger-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/Csneer/task-ledger-demo/actions/workflows/ci.yml)
+[![Core and contract checks](https://github.com/Csneer/task-ledger-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/Csneer/task-ledger-demo/actions/workflows/ci.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Task Ledger Demo 希望把个人与 Agent 的日常协作连接起来：人登记目标和验收结果，Agent 记录实施、领取工作、委派协作者、汇报交付，再把成果整理成下一次可以接续的上下文。
 
 它也是 [Agent↔Task Bridge](https://github.com/Csneer/agent-task-bridge) 的独立实践项目。通过产品设计、真实使用、故障注入和压力测试，检验任务协议能否支撑实际工程，并把发现的缺口与改进建议反馈给协议项目。
 
-**当前已建立 S1 接入契约与项目骨架，尚无可运行服务或前端。** 后端确定使用 Go；前端暂定。基础采用固定版本的 `task-core-draft-1`，不是现有 M1 daemon 的界面或客户端。
+**当前已实现 S2 的 Go 任务核心、SQLite 持久事务和受信宿主调用入口，尚无可部署服务或前端。** 后端使用 Go；前端暂定。基础采用固定版本的 `task-core-draft-1`，不是现有 M1 daemon 的界面或客户端。
 
 ## 想实现的体验
 
@@ -52,13 +52,13 @@ flowchart LR
 
 | 已建立 | 尚待实现与验证 |
 |---|---|
-| 独立 Go module 与模块职责 | 协议 Go 实现、事务存储和真实 HTTP binding |
-| 固定上游规格、HTTP 契约、身份/会话/事件/唤起规则 | 身份注册、任务操作、实际查询与事件接续 |
-| 人/Agent、实施登记与委派设计 | 可安装 skill、薄客户端、受控 launcher 与前端 |
-| 产品/故障/压力矩阵、结构样例与黑盒行为预期 | 真实使用、可靠性与容量结果 |
+| Go 核心的 11 个操作、精确 JSON 与固定协议校验 | 真实 HTTP binding、凭据适配与签名 cursor |
+| SQLite/WAL 原子保存任务、应用记录、回执与事件 | 公开查询、完整事件接续与实际客户端互操作 |
+| 受信 Go 入口中的身份目录、项目、定向资格与执行会话 | 可安装 skill、handoff、受控 launcher 与前端 |
+| 并发领取、幂等重试、事务回滚与进程退出恢复测试 | 真实日常使用、完整故障矩阵与压力容量结果 |
 | 设计阶段的协议发现记录 | 上游提案处理、升级与回归证据 |
 
-CI 验证格式、协议文件完整性、路由/操作/错误映射、消息结构样例、检查器自测与 Go 静态检查/编译；行为场景只校验消息形状，不代表业务可用或运行符合性通过。公开源码不等于已发布可部署版本。
+验证区分契约结构与实际 Go 行为：前者检查协议来源和消息形状，后者使用文件数据库、并发调用及子进程故障验证状态与事务。证据与限制见 [S2 实施结果](docs/validation/s2-results.md)。这些测试尚未经过 HTTP 或真实 Agent 客户端，不代表完整 binding 符合性或可部署版本。
 
 ## 继续了解
 

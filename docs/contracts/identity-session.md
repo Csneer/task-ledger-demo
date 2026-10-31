@@ -1,6 +1,6 @@
 # 身份、实施会话与恢复契约
 
-版本 ledger-http-draft-1，S1待实现。字段以[Schema](../../contract/v1/schema.json)为准；共同鉴权、回执次序和错误见[HTTP契约](../binding.md)。
+版本 ledger-http-draft-1，S1 实施基线。S2 已实现部分受信 Go 入口规则，HTTP 凭据适配仍待实现，见 [S2 实施结果](../validation/s2-results.md)。字段以[Schema](../../contract/v1/schema.json)为准；共同鉴权、回执次序和错误见[HTTP契约](../binding.md)。
 
 ## 主体目录
 

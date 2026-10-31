@@ -1,6 +1,6 @@
 # 架构：个人任务账本与协议验证载体
 
-状态：2026-10-31 的 S1 契约与骨架，尚未实现运行服务。产品范围见[产品说明](product.md)，语义来源见[协议采用说明](../protocol/README.md)。
+状态：2026-10-31 的 S2 Go 核心与持久化实现，尚未实现 HTTP 运行服务。产品范围见[产品说明](product.md)，语义来源见[协议采用说明](../protocol/README.md)。
 
 ## 目标和边界
 
@@ -24,7 +24,7 @@ flowchart TB
     VIEW --> API
 ```
 
-图中均为待实现模块。存储首选候选为 SQLite/WAL；驱动、隔离和迁移方案在存储阶段定案。HTTP+JSON 的三个操作入口已作为 ledger-http-draft-1 固定，具体见[绑定基线](binding.md)，不是上游协议强制的通信方式。
+图中核心、应用事务和持久存储已在 S2 实现；HTTP、网络身份适配、完整读取接口及用户入口仍待实现。存储采用 `modernc.org/sqlite v1.61.0`、SQLite/WAL 和 `synchronous=FULL`；写事务使用 `BEGIN IMMEDIATE`，读事务提供一致快照。迁移与文件边界见[存储说明](../migrations/README.md)。HTTP+JSON 的三个操作入口已作为 ledger-http-draft-1 固定，具体见[绑定基线](binding.md)，不是上游协议强制的通信方式。
 
 ## 模块职责
 
@@ -32,15 +32,19 @@ flowchart TB
 |---|---|---|
 | `cmd/taskledgerd` | 配置与进程组装 | 当前尚无可执行入口 |
 | `internal/core` | 11 个核心操作、状态守卫、版本、事实和协议错误 | 注册、匹配、HTTP、项目汇总 |
-| `internal/registry` | 人/Agent 稳定目录、身份映射、启停 | 因为是管理员就修改任意 Task |
-| `internal/application` | Project、ClaimPolicy、Summary/Handoff 用例 | 另一套 Task 状态机 |
-| `internal/activity` | skill 实施登记、会话存在信息、Task/Run 关联与执行会话绑定 | 将会话 end 或失联直接当作任务完成/失败 |
+| `internal/registry` | 预留目录模块；S2 目录写入目前在 application，网络身份映射待实现 | 因为是管理员就修改任意 Task |
+| `internal/application` | 已实现 Project、Participant、ClaimPolicy、ActivitySession、执行绑定与核心事务编排；Summary/Handoff 待实现 | 另一套 Task 状态机 |
+| `internal/activity` | 预留 skill 集成模块；S2 会话及绑定规则目前在 application | 将会话 end 或失联直接当作任务完成/失败 |
 | `internal/dispatch` | 注册的唤起配置、待处理唤起记录、结果核对 | 代目标 Agent claim、直接执行任务正文中的命令 |
 | `internal/storage` | 事务、成功回执、事件、应用一致性、恢复 | 将部分提交包装成成功 |
 | `internal/transport` | 消息映射、身份解析入口、查询、错误、cursor | 接受客户端自报 HostContext |
 | `web` | 未来人类交互入口 | 直接写表或设置任务状态 |
 
-目前 Go 包仅有职责注释；不提前定义大量占位接口、虚假成功返回或自动生成的业务层。
+`internal/jsonvalue` 负责精确数字、重复键与 Unicode 检查；`internal/contract` 使用嵌入的固定 Schema 离线校验。S2 应用入口为 `Execute`（11 个核心操作）、`Action`（10 个应用动作）、`Snapshot`、`Session` 和 `Events`。这些是可信 Go 调用入口，读取水位是内部整数，不是公开签名 cursor。
+
+`Initialize` 一次性建立 authority 和持久管理者名册。`Host` 的身份及 read/write/admin 能力由可信适配传入，应用在事务内复查目录状态与操作资格。S2 没有 Bearer 凭据验证器，也不能将该结构体直接暴露给网络调用者。核心命令成功回执、应用动作回执、状态与事件共同提交；重放先检查当前读取权限，再返回历史结果，不推进当前事实。
+
+完整支持范围、资源限制及验证证据见 [S2 实施结果](validation/s2-results.md)。其余包仍保留职责边界，不提供假成功实现。
 
 ## 业务对象不替代协议事实
 

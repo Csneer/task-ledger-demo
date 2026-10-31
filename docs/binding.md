@@ -1,6 +1,6 @@
 # ledger-http-draft-1 接入契约
 
-状态：S1 实施基线，2026-10-31。这是本 demo 的 HTTP binding，不是上游新增的核心协议，也不是当前已有的运行 API。前端仍待定，业务服务尚未实现。
+状态：S1 实施基线，2026-10-31。这是本 demo 的 HTTP binding，不是上游新增的核心协议。S2 已实现 Go 核心与部分应用动作，尚无 HTTP 运行 API；覆盖范围见 [S2 实施结果](validation/s2-results.md)。前端仍待定。
 
 本基线由[机器结构](../contract/v1/schema.json)、[路由映射](../contract/v1/routes.json)、[操作映射](../contract/v1/operations.json)、[错误映射](../contract/v1/errors.json)、本页及两份专题契约共同定义；发现冲突必须修订契约，不由实现私选其一。[结构向量与行为预期](../contract/v1/vectors.json)分开记录，行为预期本轮不执行。
 

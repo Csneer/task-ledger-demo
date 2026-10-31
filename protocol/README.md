@@ -1,6 +1,6 @@
 # 采用 task-core-draft-1
 
-本项目基于 [Agent↔Task Bridge](https://github.com/Csneer/agent-task-bridge) 的实验任务协议，计划实现独立的 Go authority，以真实应用验证其可用性。当前已锁定上游规格并建立本地 S1 binding 契约，没有 Go 状态机、服务或运行符合性结果。
+本项目基于 [Agent↔Task Bridge](https://github.com/Csneer/agent-task-bridge) 的实验任务协议，计划实现独立的 Go authority，以真实应用验证其可用性。当前已锁定上游规格、建立本地 S1 binding 契约，并实现 S2 Go 状态机与 SQLite 事务层。已有 Go 行为和恢复测试，尚无 HTTP 服务、真实客户端互操作或完整 binding 符合性结果，见 [S2 实施结果](../docs/validation/s2-results.md)。
 
 | 输入 | 固定值 |
 |---|---|

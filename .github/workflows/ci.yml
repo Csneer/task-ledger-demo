@@ -1,4 +1,4 @@
-name: Contract and skeleton checks
+name: Contract and runtime checks
 
 on:
   push:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  scaffold:
+  checks:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -19,5 +19,5 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
-      - name: Static contract vectors, checker tests, format, vet and build (not runtime verification)
+      - name: Contract vectors, runtime race tests, format, vet and build
         run: make check
