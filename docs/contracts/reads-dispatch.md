@@ -1,6 +1,6 @@
 # 读取接续与可选唤起契约
 
-版本ledger-http-draft-1，S1待实现。精确字段见[Schema](../../contract/v1/schema.json)；共同封套/权限/错误见[HTTP契约](../binding.md)。以下不是运行验证结果。
+版本 ledger-http-draft-1，S1 实施基线。S3 已实现快照、签名 cursor 和七个公开查询；唤起与 runner 调度仍待 S4，实际证据见 [S3 验收记录](../validation/s3-agent-acceptance.md)。精确字段见[Schema](../../contract/v1/schema.json)；共同封套/权限/错误见[HTTP契约](../binding.md)。以下不是运行验证结果。
 
 ## 查询与公开对象
 

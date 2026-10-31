@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Csneer/task-ledger-demo/internal/contract"
 	"github.com/Csneer/task-ledger-demo/internal/core"
@@ -270,6 +271,13 @@ func appendApplication(tx *storage.Tx, op, kind, entity string, rev int64, actor
 	eid, e := id()
 	if e != nil {
 		return e
+	}
+	// Composite database keys can exceed the public Identifier limit even when
+	// each component is valid. Keep the public key stable and bounded; consumers
+	// use the separately carried ActorRef/TaskRef and after-image for identity.
+	if utf8.RuneCountInString(entity) > 256 {
+		digest := sha256.Sum256([]byte(entity))
+		entity = "sha256:" + hex.EncodeToString(digest[:])
 	}
 	event := Object{"event_id": eid, "operation": op, "entity_type": kind, "entity_id": entity, "revision": rev, "actor": actor, "after": after, "removed": false}
 	if task != nil {

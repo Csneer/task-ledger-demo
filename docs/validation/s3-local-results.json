@@ -1,0 +1,183 @@
+{
+  "status": "passed",
+  "source_commit": "eb8ee021b35408338188356807da13a272c4a825",
+  "source_dirty": true,
+  "started_at": "2026-10-31T08:56:01Z",
+  "finished_at": "2026-10-31T09:00:13Z",
+  "binary_sha256": "ced582f742cf487432d53861fdc324a894dd413f78219206fa63e7185cc3d6db",
+  "agents": {
+    "codex-delegate": {
+      "exit_code": 0,
+      "elapsed_seconds": 51.672
+    },
+    "pi-work": {
+      "exit_code": 0,
+      "elapsed_seconds": 47.061
+    },
+    "claude-work": {
+      "exit_code": 0,
+      "elapsed_seconds": 136.992
+    },
+    "codex-aggregate": {
+      "exit_code": 0,
+      "elapsed_seconds": 62.092
+    }
+  },
+  "scenarios": [
+    {
+      "scenario": "http-concurrent-create-retry",
+      "clients": 6,
+      "fresh": 1,
+      "replayed": 5,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-concurrent-claim",
+      "statuses": [
+        200,
+        409
+      ],
+      "assignments": 1,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-proof-retry-and-old-assignment",
+      "missing_proof": 403,
+      "corrected_same_id": "fresh",
+      "stale_assignment": 409,
+      "unchanged_snapshot": true,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-wire-rejections",
+      "unauthenticated": 401,
+      "wrong_media_type": 415,
+      "duplicate_json_key": 400,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-check-cleanup",
+      "status": "passed",
+      "tasks_cancelled": 2,
+      "sessions_ended": 2
+    },
+    {
+      "scenario": "readiness-and-bootstrap",
+      "authority": "acceptance",
+      "actors": [
+        "human",
+        "codex",
+        "pi",
+        "claude"
+      ]
+    },
+    {
+      "scenario": "codex-delegate",
+      "cli_exit": 0,
+      "server_fact_checked": false
+    },
+    {
+      "scenario": "pi-work",
+      "cli_exit": 0,
+      "server_fact_checked": true
+    },
+    {
+      "scenario": "claude-work",
+      "cli_exit": 0,
+      "server_fact_checked": true
+    },
+    {
+      "scenario": "independent-deliveries",
+      "submitted": 2,
+      "parent_state": "active"
+    },
+    {
+      "scenario": "parent-relation-does-not-authorize-child-decision",
+      "status": 403
+    },
+    {
+      "scenario": "codex-aggregate",
+      "cli_exit": 0,
+      "server_fact_checked": false
+    },
+    {
+      "scenario": "issuer-acceptance",
+      "children": "completed",
+      "parent": "completed",
+      "human_role": "automated test actor, not live human review"
+    },
+    {
+      "scenario": "restart-and-cursor-ownership",
+      "fixed_page_survived": true,
+      "different_actor_status": 403
+    },
+    {
+      "scenario": "http-scoped-event-pages",
+      "fixed_page_repeat": true,
+      "events": 7,
+      "unique_events": 7,
+      "task_create_events": 1,
+      "tampered_cursor": 400,
+      "evidence": "deterministic HTTP harness, not independent Agent evidence"
+    }
+  ],
+  "observed_tasks": [
+    {
+      "task_id": "child-claude",
+      "state": "completed",
+      "revision": 6,
+      "records": 5
+    },
+    {
+      "task_id": "child-pi",
+      "state": "completed",
+      "revision": 6,
+      "records": 5
+    },
+    {
+      "task_id": "negative-proof-b14d7e8e1667",
+      "state": "cancelled",
+      "revision": 7,
+      "records": 3
+    },
+    {
+      "task_id": "negative-retry-b14d7e8e1667",
+      "state": "cancelled",
+      "revision": 4,
+      "records": 1
+    },
+    {
+      "task_id": "parent",
+      "state": "completed",
+      "revision": 7,
+      "records": 6
+    }
+  ],
+  "database_modes": {
+    "ledger.db-shm": "0o600",
+    "ledger.db-wal": "0o600",
+    "ledger.db": "0o600"
+  },
+  "service_port_released": true,
+  "temporary_data_removed": true,
+  "scope": "Local Go HTTP service with actual Codex, Pi and Claude Code CLIs; synthetic human actor; no frontend",
+  "source_note": "Built from source_commit plus this change; production Go sources did not change after this binary was built.",
+  "remote": {
+    "status": "environment_blocked",
+    "reason": "SSH timed out during the real run (5s) and a separate bounded retry (10s). Version-only probe is not interoperability evidence."
+  },
+  "owned_processes_stopped": true,
+  "versions": {
+    "codex": "0.164.0",
+    "pi": "0.85.1",
+    "claude_code": "2.1.231",
+    "go": "1.27.0",
+    "protocol": "task-core-draft-1",
+    "binding": "ledger-http-draft-1"
+  },
+  "temporary_client_overrides": {
+    "pi": "existing reachable provider/model, selected only via CLI arguments",
+    "claude": "proxy environment removed only for this subprocess",
+    "global_configuration_changed": false
+  }
+}

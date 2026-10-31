@@ -1,9 +1,7 @@
-# Task Ledger skill 预留
+# Task Ledger Skill
 
-本目录记录未来 Agent skill 的职责，当前没有可安装的 `SKILL.md`、客户端脚本或可调用服务。避免 Agent 把设计中的接口当成已经存在。
+可将本目录整体复制到 Agent 的 skills 目录，或直接读取 [SKILL.md](SKILL.md)。实际接入需要管理员提供服务地址、稳定身份对应的凭据，以及已登记的项目。
 
-计划支持：服务与身份配置、登记/核对注册信息、查询项目上下文、登记实施、领取已有任务、汇报/交付/验收、创建委派任务、按需请求唤起已注册 Agent，以及读取汇总接续。
+[标准库 HTTP 助手](scripts/ledger.py)按原始 JSON 调用公开接口，写前持久保存请求意图；它不依赖服务内部 Go 包或数据库。详细消息见 [HTTP 参考](references/http.md)。唤起 Agent、自动调度和前端不在本 Skill 范围。
 
-skill 通过公开接口操作，不直读数据库，不自报授权，不采集完整会话；配置使用凭据引用而非把秘密写入 skill。会话记录、任务执行和验收分别处理。协议版本不兼容或结果未知时保留真实状态，不伪报完成。
-
-实现输入是 [Agent 接入设计](../../docs/agent-integration.md)及已固定的 binding；S1 已固定 [binding](../../docs/binding.md)与机器配置；S3 在真实服务基础上编写实际 `SKILL.md` 和薄客户端，避免把静态样例当作可调用服务。
+脚本回归：`PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skills/task-ledger/scripts -p 'test_*.py'`（仓库根目录）。这些临时 HTTP fixture 测试只证明客户端保存、传输和失败处理行为；真实服务/Agent 互操作须另行验收。

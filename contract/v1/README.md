@@ -1,6 +1,6 @@
 # S1 接入契约包
 
-版本：`ledger-http-draft-1`。日期：2026-10-31。状态：**本项目实施基线；S2 已实现 Go 核心及部分应用动作，尚无 HTTP 运行服务**。上游仍固定为 `task-core-draft-1` / `e6dae9a6127537af94f0f5127e8d590a1e6a3f1a`，未修改其文件。
+版本：`ledger-http-draft-1`。日期：2026-10-31。状态：**本项目实施基线；S3 已实现部分 HTTP binding，范围见后台验收记录**。上游仍固定为 `task-core-draft-1` / `e6dae9a6127537af94f0f5127e8d590a1e6a3f1a`，未修改其文件。
 
 | 文件 | 作用 |
 |---|---|
@@ -13,7 +13,7 @@
 | [身份会话契约](../../docs/contracts/identity-session.md) | 注册、凭据、proof、执行绑定、会话恢复/交接 |
 | [读取唤起契约](../../docs/contracts/reads-dispatch.md) | 快照水位、cursor、配置日志、Wake状态与启动边界 |
 
-Schema用固定URN引用仓库内上游Schema；检查器禁止联网加载引用。HTTP header中的Bearer/session proof不属于正文Schema，不进入样例。配置样例使用假路径和环境变量引用：[skill](../../integrations/skill-config.example.json)、[runner](../../integrations/runner-config.example.json)。它们只说明结构，不是可安装或可启动的集成。
+Schema用固定URN引用仓库内上游Schema；检查器禁止联网加载引用。HTTP header中的Bearer/session proof不属于正文Schema，不进入样例。配置样例使用假路径和环境变量引用：[skill](../../integrations/skill-config.example.json)、[runner](../../integrations/runner-config.example.json)。它们是契约级结构样例；可安装 Skill 的实际文件配置见 [Skill](../../skills/task-ledger/SKILL.md)，daemon 配置见[后台接入](../../docs/backend.md)，runner 仍未实现。
 
 ## 检查与证据
 
@@ -23,7 +23,7 @@ Schema用固定URN引用仓库内上游Schema；检查器禁止联网加载引�
 
 `scenarios` 是有前置条件的黑盒行为规格。当前工具只核对请求结构、错误名/HTTP映射及非空不变量；**不执行步骤、不构造数据库、不判断预期状态是否已经被实现**。S01–S18涵盖原子创建、幂等冲突、session证明/交接、唤起失效/未知、快照接续/重建、角色、容量和skill部分完成；S2 已有独立 Go 行为和持久事务测试，覆盖范围见 [S2 实施结果](../../docs/validation/s2-results.md)；完整 HTTP 场景继续在 S3–S4 实现。固定游标示例是符号值，实际测试必须取上一响应返回的token，不能把样例字符串当真实签名token。
 
-配置样例与cases中的配置应保持一致；静态校验不证明路径存在、凭据有效或执行命令安全。`tools/check-contract` 是静态契约检查器；S2 运行输入由独立的 `internal/jsonvalue` 和 `internal/contract` 包解析与校验。二者都不构成 HTTP 服务。
+配置样例与cases中的配置应保持一致；静态校验不证明路径存在、凭据有效或执行命令安全。`tools/check-contract` 是静态契约检查器；S2 运行输入由独立的 `internal/jsonvalue` 和 `internal/contract` 包解析与校验。二者本身不构成 HTTP 服务；S3 的 `cmd/taskledgerd` 与 `internal/transport` 提供真实入口，证据见 [S3 验收记录](../../docs/validation/s3-agent-acceptance.md)。
 
 ## 版本变化
 

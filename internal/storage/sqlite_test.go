@@ -81,6 +81,13 @@ func TestPersistObjectsEventsAndReopen(t *testing.T) {
 		if len(entries) != 2 || entries[0].Key != "a" || len(entries[0].Value) != 0 || entries[1].Key != "b" || string(entries[1].Value) != "updated" {
 			return fmt.Errorf("unexpected entries: %+v", entries)
 		}
+		limited, err := tx.ListLimit("tasks", 1)
+		if err != nil || len(limited) != 1 || limited[0].Key != "a" {
+			return fmt.Errorf("bounded read: %+v, %v", limited, err)
+		}
+		if _, err := tx.ListLimit("tasks", 0); err == nil {
+			return errors.New("invalid limit accepted")
+		}
 		if _, err := tx.Get("tasks", "discard"); !errors.Is(err, ErrNotFound) {
 			return fmt.Errorf("deleted object: %v", err)
 		}
@@ -506,6 +513,101 @@ func TestSubprocessCompetingWriters(t *testing.T) {
 		events, err := tx.Events(0, 10)
 		if err != nil || len(events) != 1 {
 			return fmt.Errorf("committed events=%d error=%v", len(events), err)
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// A deliberately short busy timeout makes this exercise the startup retry
+// deadline instead of spending five seconds in SQLite's normal busy handler.
+func TestInitializationBusyRetryHonorsDeadlineAndRecovers(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "startup.db")
+	writer := testStore(t, path)
+	ctx := testContext(t)
+	conn, err := writer.db.Conn(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+	if _, err = conn.ExecContext(ctx, "BEGIN IMMEDIATE"); err != nil {
+		t.Fatal(err)
+	}
+	defer conn.ExecContext(context.Background(), "ROLLBACK")
+	db, err := sql.Open("sqlite", path+"?_pragma=busy_timeout(1)")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	candidate := &Store{db: db}
+	deadline, cancel := context.WithTimeout(ctx, 50*time.Millisecond)
+	defer cancel()
+	started := time.Now()
+	err = candidate.initialize(deadline)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("expected startup deadline, got %v", err)
+	}
+	if time.Since(started) > time.Second {
+		t.Fatal("startup retry exceeded bounded wait")
+	}
+	if _, err = conn.ExecContext(ctx, "ROLLBACK"); err != nil {
+		t.Fatal(err)
+	}
+	if err = candidate.initialize(ctx); err != nil {
+		t.Fatalf("startup did not recover after writer released: %v", err)
+	}
+}
+
+func TestBoundedReadsEnforceIndividualAndAggregateBytes(t *testing.T) {
+	s := testStore(t, filepath.Join(t.TempDir(), "bounded.db"))
+	ctx := testContext(t)
+	if err := s.Update(ctx, func(tx *Tx) error {
+		for _, entry := range []Entry{{Key: "a", Value: []byte("abc")}, {Key: "b", Value: []byte("defg")}} {
+			if err := tx.Put("items", entry.Key, entry.Value); err != nil {
+				return err
+			}
+			if _, err := tx.AppendEvent(entry.Key, entry.Value); err != nil {
+				return err
+			}
+		}
+		return tx.Put("empty", "zero", nil)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.View(ctx, func(tx *Tx) error {
+		if b, err := tx.GetBounded("items", "a", 2); !errors.Is(err, ErrCapacity) || b != nil {
+			t.Errorf("oversize Get = %q, %v", b, err)
+		}
+		if b, err := tx.GetBounded("items", "a", 3); err != nil || string(b) != "abc" {
+			t.Errorf("exact Get = %q, %v", b, err)
+		}
+		if _, err := tx.GetBounded("items", "missing", 0); !errors.Is(err, ErrNotFound) {
+			t.Errorf("missing = %v", err)
+		}
+		if b, err := tx.GetBounded("empty", "zero", 0); err != nil || len(b) != 0 {
+			t.Errorf("empty = %q, %v", b, err)
+		}
+		if rows, err := tx.ListBounded("items", 2, 6); !errors.Is(err, ErrCapacity) || rows != nil {
+			t.Errorf("aggregate list = %v, %v", rows, err)
+		}
+		if rows, err := tx.ListBounded("items", 2, 7); err != nil || len(rows) != 2 || rows[0].Key != "a" || string(rows[1].Value) != "defg" {
+			t.Errorf("exact list = %v, %v", rows, err)
+		}
+		if rows, err := tx.ListBounded("items", 1, 3); err != nil || len(rows) != 1 {
+			t.Errorf("limited list = %v, %v", rows, err)
+		}
+		if rows, err := tx.EventsBounded(0, 2, 6); !errors.Is(err, ErrCapacity) || rows != nil {
+			t.Errorf("aggregate events = %v, %v", rows, err)
+		}
+		if rows, err := tx.EventsBounded(0, 2, 7); err != nil || len(rows) != 2 || rows[0].ID != "a" || string(rows[1].Body) != "defg" {
+			t.Errorf("exact events = %v, %v", rows, err)
+		}
+		if rows, err := tx.EventsBounded(1, 1, 4); err != nil || len(rows) != 1 || rows[0].ID != "b" {
+			t.Errorf("cursor events = %v, %v", rows, err)
+		}
+		if rows, err := tx.EventsBounded(2, 1, 0); err != nil || len(rows) != 0 {
+			t.Errorf("empty events = %v, %v", rows, err)
 		}
 		return nil
 	}); err != nil {

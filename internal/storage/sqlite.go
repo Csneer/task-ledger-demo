@@ -20,6 +20,7 @@ var (
 	ErrExists   = errors.New("storage: record already exists")
 	ErrReadOnly = errors.New("storage: read-only transaction")
 	ErrTxClosed = errors.New("storage: transaction is closed")
+	ErrCapacity = errors.New("storage: read byte budget exceeded")
 )
 
 // Store is a file-backed SQLite database. All connections use WAL, FULL
@@ -71,7 +72,7 @@ func Open(path string) (*Store, error) {
 	s := &Store{db: db}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err := s.migrate(ctx); err != nil {
+	if err := s.initialize(ctx); err != nil {
 		return nil, errors.Join(err, db.Close())
 	}
 	return s, nil
@@ -132,6 +133,32 @@ func (s *Store) transact(ctx context.Context, writable bool, fn func(*Tx) error)
 	}
 	committed = true
 	return nil
+}
+
+// initialize retries only startup: concurrent connection PRAGMAs (notably WAL)
+// can return SQLITE_BUSY without waiting for busy_timeout. Migration is atomic
+// and version-checked, so retrying it is safe; application callbacks never retry.
+func (s *Store) initialize(ctx context.Context) error {
+	for {
+		err := s.migrate(ctx)
+		if err == nil {
+			return nil
+		}
+		var sqliteErr *sqlite.Error
+		if !errors.As(err, &sqliteErr) || sqliteErr.Code()&0xff != sqlite3.SQLITE_BUSY {
+			return err
+		}
+		timer := time.NewTimer(10 * time.Millisecond)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return errors.Join(err, ctx.Err())
+		case <-timer.C:
+		}
+		if ctx.Err() != nil {
+			return errors.Join(err, ctx.Err())
+		}
+	}
 }
 
 func (s *Store) migrate(ctx context.Context) error {
@@ -226,10 +253,23 @@ func (tx *Tx) Delete(bucket, key string) error {
 }
 
 func (tx *Tx) List(bucket string) ([]Entry, error) {
+	return tx.list(bucket, -1)
+}
+
+// ListLimit reads at most limit objects in key order. Snapshot callers can
+// fetch one extra row to reject an over-capacity collection without loading it.
+func (tx *Tx) ListLimit(bucket string, limit int) ([]Entry, error) {
+	if limit <= 0 {
+		return nil, errors.New("storage: invalid object limit")
+	}
+	return tx.list(bucket, limit)
+}
+
+func (tx *Tx) list(bucket string, limit int) ([]Entry, error) {
 	if err := tx.check(false); err != nil {
 		return nil, err
 	}
-	rows, err := tx.conn.QueryContext(tx.ctx, "SELECT key,value FROM objects WHERE bucket = ? ORDER BY key", bucket)
+	rows, err := tx.conn.QueryContext(tx.ctx, "SELECT key,value FROM objects WHERE bucket = ? ORDER BY key LIMIT ?", bucket, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -306,4 +346,114 @@ func uniqueError(err error) error {
 		return errors.Join(ErrExists, err)
 	}
 	return err
+}
+
+// GetBounded checks the BLOB length before loading it. maxBytes counts stored
+// value bytes; callers separately enforce encoded response overhead.
+func (tx *Tx) GetBounded(bucket, key string, maxBytes int) ([]byte, error) {
+	if err := tx.check(false); err != nil {
+		return nil, err
+	}
+	if maxBytes < 0 {
+		return nil, errors.New("storage: invalid byte budget")
+	}
+	var size int64
+	err := tx.conn.QueryRowContext(tx.ctx, "SELECT length(value) FROM objects WHERE bucket = ? AND key = ?", bucket, key).Scan(&size)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	if size > int64(maxBytes) {
+		return nil, ErrCapacity
+	}
+	return tx.Get(bucket, key)
+}
+
+// ListBounded reads at most limit entries, refusing the entire result before
+// loading BLOBs if their combined size exceeds maxBytes. The transaction keeps
+// the metadata check and subsequent reads on the same snapshot.
+func (tx *Tx) ListBounded(bucket string, limit, maxBytes int) ([]Entry, error) {
+	if err := tx.check(false); err != nil {
+		return nil, err
+	}
+	if limit <= 0 || maxBytes < 0 {
+		return nil, errors.New("storage: invalid bounded range")
+	}
+	rows, err := tx.conn.QueryContext(tx.ctx, "SELECT key,length(value) FROM objects WHERE bucket = ? ORDER BY key LIMIT ?", bucket, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	entries := []Entry{}
+	remaining := int64(maxBytes)
+	for rows.Next() {
+		var entry Entry
+		var size int64
+		if err := rows.Scan(&entry.Key, &size); err != nil {
+			return nil, err
+		}
+		if size > remaining {
+			return nil, ErrCapacity
+		}
+		remaining -= size
+		entries = append(entries, entry)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	for i := range entries {
+		entries[i].Value, err = tx.Get(bucket, entries[i].Key)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return entries, nil
+}
+
+// EventsBounded applies a combined body-byte budget before loading event BLOBs.
+// Event selection and order match Events; metadata and JSON overhead are not
+// included in this storage budget.
+func (tx *Tx) EventsBounded(after int64, limit, maxBytes int) ([]Event, error) {
+	if err := tx.check(false); err != nil {
+		return nil, err
+	}
+	if after < 0 || limit <= 0 || maxBytes < 0 {
+		return nil, errors.New("storage: invalid bounded event range")
+	}
+	rows, err := tx.conn.QueryContext(tx.ctx, "SELECT position,event_id,length(body) FROM events WHERE position > ? ORDER BY position LIMIT ?", after, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	events := []Event{}
+	remaining := int64(maxBytes)
+	for rows.Next() {
+		var event Event
+		var size int64
+		if err := rows.Scan(&event.Position, &event.ID, &size); err != nil {
+			return nil, err
+		}
+		if size > remaining {
+			return nil, ErrCapacity
+		}
+		remaining -= size
+		events = append(events, event)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	for i := range events {
+		if err := tx.conn.QueryRowContext(tx.ctx, "SELECT body FROM events WHERE position = ?", events[i].Position).Scan(&events[i].Body); err != nil {
+			return nil, err
+		}
+	}
+	return events, nil
 }

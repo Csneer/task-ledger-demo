@@ -11,7 +11,7 @@ Task Ledger Demo 希望把个人与 Agent 的日常协作连接起来：人登�
 
 它也是 [Agent↔Task Bridge](https://github.com/Csneer/agent-task-bridge) 的独立实践项目。通过产品设计、真实使用、故障注入和压力测试，检验任务协议能否支撑实际工程，并把发现的缺口与改进建议反馈给协议项目。
 
-**当前已实现 S2 的 Go 任务核心、SQLite 持久事务和受信宿主调用入口，尚无可部署服务或前端。** 后端使用 Go；前端暂定。基础采用固定版本的 `task-core-draft-1`，不是现有 M1 daemon 的界面或客户端。
+**当前已实现 Go 后台、公开 HTTP 接口、签名事件游标和轻量 Skill，本机 Codex、Pi、Claude Code 的任务闭环已通过验收；前端暂缓。** 后端使用 Go；前端暂定。基础采用固定版本的 `task-core-draft-1`，不是现有 M1 daemon 的界面或客户端。
 
 ## 想实现的体验
 
@@ -52,13 +52,13 @@ flowchart LR
 
 | 已建立 | 尚待实现与验证 |
 |---|---|
-| Go 核心的 11 个操作、精确 JSON 与固定协议校验 | 真实 HTTP binding、凭据适配与签名 cursor |
-| SQLite/WAL 原子保存任务、应用记录、回执与事件 | 公开查询、完整事件接续与实际客户端互操作 |
-| 受信 Go 入口中的身份目录、项目、定向资格与执行会话 | 可安装 skill、handoff、受控 launcher 与前端 |
+| Go 核心的 11 个操作、精确 JSON 与固定协议校验 | 完整 binding 范围与跨 authority 互操作 |
+| SQLite/WAL 事务、HTTP 凭据映射、快照与签名事件 cursor | 更长时间的使用、恢复和容量测量 |
+| 身份目录、项目、定向资格、执行会话与可安装 Skill | handoff、受控 launcher 与前端 |
 | 并发领取、幂等重试、事务回滚与进程退出恢复测试 | 真实日常使用、完整故障矩阵与压力容量结果 |
 | 设计阶段的协议发现记录 | 上游提案处理、升级与回归证据 |
 
-验证区分契约结构与实际 Go 行为：前者检查协议来源和消息形状，后者使用文件数据库、并发调用及子进程故障验证状态与事务。证据与限制见 [S2 实施结果](docs/validation/s2-results.md)。这些测试尚未经过 HTTP 或真实 Agent 客户端，不代表完整 binding 符合性或可部署版本。
+验证区分契约结构、Go 行为、真实 HTTP 和 Agent 客户端。核心与事务证据见 [S2 实施结果](docs/validation/s2-results.md)，本轮后台与客户端验收状态见 [S3 验收记录](docs/validation/s3-agent-acceptance.md)。公开源码和单次联调不代表完整故障矩阵、容量基线或首个正式可用版本已经完成。
 
 ## 继续了解
 
@@ -66,6 +66,7 @@ flowchart LR
 |---|---|
 | 产品目标与完整日常链路 | [产品范围](docs/product.md) |
 | 模块、事务与状态边界 | [架构设计](docs/architecture.md) |
+| 运行后台与配置客户端 | [后台接入](docs/backend.md) |
 | skill、注册、实施登记和唤起 | [Agent 接入设计](docs/agent-integration.md) |
 | 协议依据与应用接口 | [协议采用说明](protocol/README.md) · [S1 binding 基线](docs/binding.md) |
 | 设计发现、可靠性与压测 | [协议实践发现](docs/protocol-findings.md) · [验证计划](docs/validation.md) |

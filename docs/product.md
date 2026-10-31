@@ -1,6 +1,6 @@
 # 产品范围与日常协作链路
 
-状态：S1 产品与接入契约；S2 已实现 Go 核心与部分应用规则，尚无公开服务或完整日常入口，见 [S2 实施结果](validation/s2-results.md)。后端使用 Go，前端技术暂定。
+状态：S1 产品与接入契约；S3 已实现 HTTP 后台与轻量 Skill，真实客户端验收见 [S3 验收记录](validation/s3-agent-acceptance.md)，完整日常入口仍在推进。后端使用 Go，前端技术暂定。
 
 Task Ledger Demo 是面向个人及小团队的人与 Agent 任务记录工具，也是检验任务协议是否足以支撑真实产品的独立 demo。它借鉴 p-drive 的项目上下文、执行记录和接续体验，以 [task-core-draft-1](../protocol/README.md) 表达任务事实，不依赖 p-drive 服务或数据格式。
 

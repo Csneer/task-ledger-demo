@@ -1,4 +1,5 @@
-// Package transport reserves the application HTTP binding and read interfaces.
-// It must derive trusted host context rather than accept it from a client.
-// There are currently no HTTP routes, listeners, or network APIs.
+// Package transport implements the ledger-http-draft-1 HTTP binding for Actor
+// credentials. It derives trusted host context from a fixed digest roster and
+// forwards commands, actions and queries to the application transaction boundary.
+// Server listeners, TLS termination and configuration belong to the daemon.
 package transport

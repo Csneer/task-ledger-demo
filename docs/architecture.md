@@ -1,6 +1,6 @@
 # 架构：个人任务账本与协议验证载体
 
-状态：2026-10-31 的 S2 Go 核心与持久化实现，尚未实现 HTTP 运行服务。产品范围见[产品说明](product.md)，语义来源见[协议采用说明](../protocol/README.md)。
+状态：2026-10-31，Go 核心、持久化、HTTP 后台、公开读取和 Skill 已实现，本机三种真实 CLI 闭环通过，远端环境阻塞，完整真人日常验收仍待完成。产品范围见[产品说明](product.md)，语义来源见[协议采用说明](../protocol/README.md)。
 
 ## 目标和边界
 
@@ -24,27 +24,29 @@ flowchart TB
     VIEW --> API
 ```
 
-图中核心、应用事务和持久存储已在 S2 实现；HTTP、网络身份适配、完整读取接口及用户入口仍待实现。存储采用 `modernc.org/sqlite v1.61.0`、SQLite/WAL 和 `synchronous=FULL`；写事务使用 `BEGIN IMMEDIATE`，读事务提供一致快照。迁移与文件边界见[存储说明](../migrations/README.md)。HTTP+JSON 的三个操作入口已作为 ledger-http-draft-1 固定，具体见[绑定基线](binding.md)，不是上游协议强制的通信方式。
+图中核心、应用事务和持久存储已在 S2 实现；S3 已接入 HTTP、Bearer 身份映射、七个公开查询及轻量 Skill。显式 handoff、唤起执行器和前端仍待实现。存储采用 `modernc.org/sqlite v1.61.0`、SQLite/WAL 和 `synchronous=FULL`；写事务使用 `BEGIN IMMEDIATE`，读事务提供一致快照。迁移与文件边界见[存储说明](../migrations/README.md)。HTTP+JSON 的三个操作入口已作为 ledger-http-draft-1 固定，具体见[绑定基线](binding.md)，不是上游协议强制的通信方式。
 
 ## 模块职责
 
 | 目录 | 职责 | 不能承担的职责 |
 |---|---|---|
-| `cmd/taskledgerd` | 配置与进程组装 | 当前尚无可执行入口 |
+| `cmd/taskledgerd` | 私有配置、一次性初始化、HTTP/TLS 监听与优雅停止 | 自动发行凭据、前端与通用执行器 |
 | `internal/core` | 11 个核心操作、状态守卫、版本、事实和协议错误 | 注册、匹配、HTTP、项目汇总 |
-| `internal/registry` | 预留目录模块；S2 目录写入目前在 application，网络身份映射待实现 | 因为是管理员就修改任意 Task |
+| `internal/registry` | 预留目录模块；目录写入在 application，凭据映射在 transport | 因为是管理员就修改任意 Task |
 | `internal/application` | 已实现 Project、Participant、ClaimPolicy、ActivitySession、执行绑定与核心事务编排；Summary/Handoff 待实现 | 另一套 Task 状态机 |
-| `internal/activity` | 预留 skill 集成模块；S2 会话及绑定规则目前在 application | 将会话 end 或失联直接当作任务完成/失败 |
+| `internal/activity` | 预留独立模块；会话及绑定规则在 application，客户端 Skill 位于 skills/task-ledger | 将会话 end 或失联直接当作任务完成/失败 |
 | `internal/dispatch` | 注册的唤起配置、待处理唤起记录、结果核对 | 代目标 Agent claim、直接执行任务正文中的命令 |
 | `internal/storage` | 事务、成功回执、事件、应用一致性、恢复 | 将部分提交包装成成功 |
-| `internal/transport` | 消息映射、身份解析入口、查询、错误、cursor | 接受客户端自报 HostContext |
+| `internal/transport` | 三个 HTTP 路由、Bearer 身份解析、会话头映射与错误响应 | 接受客户端自报 HostContext |
 | `web` | 未来人类交互入口 | 直接写表或设置任务状态 |
 
-`internal/jsonvalue` 负责精确数字、重复键与 Unicode 检查；`internal/contract` 使用嵌入的固定 Schema 离线校验。S2 应用入口为 `Execute`（11 个核心操作）、`Action`（10 个应用动作）、`Snapshot`、`Session` 和 `Events`。这些是可信 Go 调用入口，读取水位是内部整数，不是公开签名 cursor。
+`internal/jsonvalue` 负责精确数字、重复键与 Unicode 检查；`internal/contract` 使用嵌入的固定 Schema 离线校验。应用入口为 `Execute`（11 个核心操作）、`Action`（10 个应用动作）和 `Query`（7 个公开查询）。S2 的 `Snapshot`、`Session`、`Events` 仍是可信 Go 帮助入口；公开查询返回持久密钥签名的水位与 cursor，不能用内部整数替代。
 
-`Initialize` 一次性建立 authority 和持久管理者名册。`Host` 的身份及 read/write/admin 能力由可信适配传入，应用在事务内复查目录状态与操作资格。S2 没有 Bearer 凭据验证器，也不能将该结构体直接暴露给网络调用者。核心命令成功回执、应用动作回执、状态与事件共同提交；重放先检查当前读取权限，再返回历史结果，不推进当前事实。
+`Initialize` 一次性建立 authority 和持久管理者名册。`Host` 的身份及 read/write/admin 能力由可信适配传入，应用在事务内复查目录状态与操作资格。HTTP 适配器从带外凭据摘要映射身份与能力，不能将该结构体直接暴露给网络调用者。核心命令成功回执、应用动作回执、状态与事件共同提交；重放先检查当前读取权限，再返回历史结果，不推进当前事实。
 
-完整支持范围、资源限制及验证证据见 [S2 实施结果](validation/s2-results.md)。其余包仍保留职责边界，不提供假成功实现。
+查询从一个一致性读事务返回公开对象与完整提交水位；签名 cursor 绑定 authority、日志 incarnation、范围及 ActorRef。正常重启保留签名材料。读取按对象数和累计 BLOB 字节预算限制，完整响应仍在编码后检查 16 MiB 上限。不存在自动历史清理或无限快照容量。
+
+核心证据见 [S2 实施结果](validation/s2-results.md)，HTTP、Skill 与实际客户端范围见 [S3 验收记录](validation/s3-agent-acceptance.md)，运行入口见[后台接入](backend.md)。其余包仍保留职责边界，不提供假成功实现。
 
 ## 业务对象不替代协议事实
 

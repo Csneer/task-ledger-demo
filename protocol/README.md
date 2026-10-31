@@ -1,6 +1,6 @@
 # 采用 task-core-draft-1
 
-本项目基于 [Agent↔Task Bridge](https://github.com/Csneer/agent-task-bridge) 的实验任务协议，计划实现独立的 Go authority，以真实应用验证其可用性。当前已锁定上游规格、建立本地 S1 binding 契约，并实现 S2 Go 状态机与 SQLite 事务层。已有 Go 行为和恢复测试，尚无 HTTP 服务、真实客户端互操作或完整 binding 符合性结果，见 [S2 实施结果](../docs/validation/s2-results.md)。
+本项目基于 [Agent↔Task Bridge](https://github.com/Csneer/agent-task-bridge) 的实验任务协议，实现独立的 Go authority，以真实应用验证其可用性。当前已锁定上游规格、建立本地 S1 binding 契约，并实现 Go 状态机、SQLite 事务、HTTP 后台与轻量 Skill。核心证据见 [S2 实施结果](../docs/validation/s2-results.md)，实际客户端验收与未覆盖边界见 [S3 验收记录](../docs/validation/s3-agent-acceptance.md)；本项目尚未声明完整 binding 符合性。
 
 | 输入 | 固定值 |
 |---|---|
@@ -31,7 +31,7 @@
 
 ## 本地绑定与上游演进
 
-当前协议没有部署中的新版本服务，也没有本项目可以直接复用的新版本 Go SDK。已发布 M1 的 HTTP 服务、Bearer/租约逻辑及客户端不兼容本草案；本项目不会透传到 M1 后声称采用了新核心。
+本项目提供独立 Go HTTP 服务，客户端按公开 binding 接入，无需导入服务内部包。已发布 M1 的 HTTP 服务、Bearer/租约逻辑及客户端不兼容本草案；本项目不会透传到 M1 后声称采用了新核心。
 
 HTTP、身份、查询、cursor 和应用策略在[本项目 S1 绑定基线](../docs/binding.md)单独定义；它们不是上游已经承诺的能力。未来可把通用需求形成提案，回馈上游，但不能私自修改核心含义。
 

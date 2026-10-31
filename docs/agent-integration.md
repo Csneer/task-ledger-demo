@@ -1,6 +1,6 @@
 # Agent skill、实施登记与可选唤起
 
-状态：S1 接入设计，接口规范已在 [binding 基线](binding.md)及专题契约固定，执行流程待实现。本文定义接入职责，不提供可运行命令。[Skill 目录](../skills/task-ledger/README.md)与[适配目录](../integrations/README.md)仅作预留。
+状态：S3 已实现 HTTP 后台与[可安装 Skill](../skills/task-ledger/README.md)，接口规范沿用 [binding 基线](binding.md)。运行配置见[后台接入](backend.md)，真实客户端证据见 [S3 验收记录](validation/s3-agent-acceptance.md)。本文同时保留 S4 可选唤起设计，不能把未实现部分当成当前能力。
 
 ## Skill 是日常接入入口
 
@@ -15,13 +15,13 @@ Agent 宿主加载 skill 后，通过薄客户端访问服务。skill 引导何�
 | 默认 Project、工作空间引用 | 帮助归属与接续；本机目录/会话原文不默认上传 |
 | 可选 LaunchProfile 引用 | 指向管理者登记的唤起配置；Agent 自报配置不能立即变成可执行命令 |
 
-skill 的预期动作包括：身份核对/登记、读取项目摘要、实施登记与更新、发现/领取任务、正式交付与验收、委派任务、可选唤起和结果核对、汇总与接续。HTTP 路径和 [skill 配置样例](../integrations/skill-config.example.json)已在 S1 固定；配置结构可校验，当前没有可调用客户端或安装脚本。
+skill 的预期动作包括：身份核对/登记、读取项目摘要、实施登记与更新、发现/领取任务、正式交付与验收、委派任务、可选唤起和结果核对、汇总与接续。HTTP 路径与契约级配置在 S1 固定；当前助手使用 [Skill 文件配置](../skills/task-ledger/SKILL.md)，将本目录整体复制到 Agent skills 目录或显式读取即可接入。凭据由管理员带外提供，助手不自动注册身份或签发凭据。
 
 ## ActivitySession 与协议执行分开
 
-ActivitySession 保存 session ID、真实 actor、provider、可选 host/workspace 引用、项目、公开目标、进展/决定/验证/阻塞/下一步、时间，以及可选的 TaskRef/Assignment/Run 关联。它记录一次实施会话，不能替代 Task 的工作责任和完成事实。
+ActivitySession 保存 session ID、真实 actor、可选 provider/host/workspace 引用、项目、公开目标、阶段、摘要、状态和时间。执行绑定另行关联 TaskRef/Assignment/Run；决定、验证、阻塞和下一步目前写入公开摘要，不是独立结构字段。它记录一次实施会话，不能替代 Task 的工作责任和完成事实。
 
-`begin/update/heartbeat/end` 是拟议的应用动作，不是新增核心 operation。heartbeat 只更新存在信息；最近未汇报应显示为未知或登记过期，不能据此令 Task failed、释放承接或创建新一轮执行。end 结束会话，不自动生成 Decision。正式交付仍须 `run.submit`，验收仍须真实 issuer `task.decide`。
+当前应用动作是 `session.begin/update/rotate/end/transfer`，不是新增核心 operation；heartbeat 使用 `session.update`。heartbeat 只更新存在信息；最近未汇报应显示为未知或登记过期，不能据此令 Task failed、释放承接或创建新一轮执行。end 结束会话，不自动生成 Decision。正式交付仍须 `run.submit`，验收仍须真实 issuer `task.decide`。
 
 会话关联与作者信息不可通过客户端随意填写获得资格。宿主在成功 claim 时共同记录 Assignment 对应的当前执行 ActivitySession，后续新执行命令核对该绑定。恢复同一个会话需要可验证的恢复凭据；换会话继续需要显式交接和原子替换执行资格。仅知道 session_id、TaskRef 或相同 Agent 身份不构成恢复证明。
 
@@ -49,7 +49,7 @@ begin/create/claim/start 是多个可分别提交的操作。客户端或服务�
 
 command_id 的幂等范围跨同一 actor/authority 的所有任务与操作，因此每一步使用不同 ID；同一 session ID 不能充当所有核心命令的 ID。应用组合操作记录也需要版本和幂等规则。
 
-## 委派与唤起链路
+## 委派与唤起链路（唤起待 S4）
 
 ```mermaid
 sequenceDiagram
@@ -87,4 +87,4 @@ LaunchProfile 由管理者登记/批准，使用固定 executable 与 argv 模�
 
 ## 实施输入与验证边界
 
-本轮只有设计、目录与验证场景，不提供 skill、launcher 或进程控制实现。S1 已固定注册管理、会话 proof/轮换/交接、claim 绑定、wake 状态和单次 activation、缺配置原子拒绝与每 runner 一个未决启动；精确规则见[身份会话契约](contracts/identity-session.md)和[读取唤起契约](contracts/reads-dispatch.md)。相关故障与压力场景见[验证计划](validation.md)。
+当前 Skill 通过公开 HTTP 执行原始请求，并在写前持久保存请求意图；session secret 保存在独立私有文件，未知结果不自动重试。launcher 和进程控制尚未实现。S1 已固定注册管理、会话 proof/轮换/交接、claim 绑定、wake 状态和单次 activation、缺配置原子拒绝与每 runner 一个未决启动；精确规则见[身份会话契约](contracts/identity-session.md)和[读取唤起契约](contracts/reads-dispatch.md)。相关故障与压力场景见[验证计划](validation.md)。
