@@ -1,6 +1,6 @@
 # S3：后台与真实 Agent 客户端验收
 
-日期：2026-10-31。结论：**本机后台与三种真实 CLI 的任务闭环通过；远端 SSH 与带认证任务 HTTP 已恢复，模型 502 阻塞任务执行。完整 S3 真人日常验收仍未完成。**
+日期：2026-10-31。结论：**本机 Codex、Pi、Claude Code 与远端 Codex 共四个客户端的任务闭环通过；远端经加密 SSH 转发访问同一 authority。完整 S3 真人日常验收仍未完成。**
 
 本轮实现公开 Go 后台和轻量 Skill，并让实际 Agent CLI 通过 HTTP 操作隔离的合成任务。核心协议固定为 `task-core-draft-1`，上游 commit 为 `e6dae9a6127537af94f0f5127e8d590a1e6a3f1a`；本轮没有修改上游 Schema 或语义。
 
@@ -23,9 +23,9 @@
 | 本机 Codex | 0.164.0 | 领取父任务，发布定向子任务，验收子交付并汇总 |
 | 本机 Pi | 0.85.1 | 使用 Skill 领取并交付；第三轮采用已有 `codex-proxy-local/gpt-5.6-luna` 配置 |
 | 本机 Claude Code | 2.1.231 | 独立 HTTP 客户端领取和交付 |
-| 远端 Codex | 0.164.0 | 复测 SSH 与任务 HTTP 查询通过；模型请求返回 502，尚未领取或交付 |
+| 远端 Codex | 0.164.0 | 经 SSH 转发独立编写 HTTP 客户端，领取、报告并交付；由本机 Codex issuer 验收 |
 
-后台使用 loopback HTTP。远端初轮实际连接超时；复测通过加密 SSH 反向转发完成带认证的 `service.info` 查询，但模型请求返回 502，尚未形成远端任务互操作或直接 LAN HTTPS 证据。测试向客户端提供公开协议和独立工作目录，业务结果通过 HTTP 核对，不以数据库或内部 Go 包调用作为客户端证据。
+后台使用 loopback HTTP。远端 Codex 已通过加密 SSH 反向转发完成带认证查询及任务领取、执行、报告、交付，随后由本机 Codex issuer 验收。四个客户端连接同一个 authority；这不构成跨 authority 或直接 LAN HTTPS 证据。此前 SSH 超时及模型 502 失败记录仍保留。测试向客户端提供公开协议和独立工作目录，业务结果通过 HTTP 核对，不以数据库或内部 Go 包调用作为客户端证据。
 
 父任务由自动化测试的 `human` Actor 发起。真实 Codex 发布的子任务由 Codex 自己验收，最后自动化 `human` Actor 验收父交付。**这里的人类主体是角色测试，不是真人在前端或 CLI 中阅读结果并作判断。**
 
@@ -58,11 +58,11 @@ Pi 前两轮 CLI 返回 exit 0，但公开 `task.snapshot` 显示其任务仍为
 
 Claude Code 第三轮在仅对该子进程移除代理环境后完成交付；没有修改全局配置。数据库、WAL 和 SHM 在实际 daemon 运行时的权限均已核对为 `0600`。
 
-## 远端 SSH 恢复后的复测
+## 历史：SSH 恢复后模型 502 阻塞
 
 2026-10-31 再次执行远端验收。SSH 非交互连接和 Codex 0.164.0 版本核对成功；远端 wrapper 经 SSH 反向转发完成带认证的 `service.info` 查询，并核对 authority 与协议版本。随后实际 Codex 的模型 `/v1/responses` 请求返回 `502 Bad Gateway`，5 次重连后以 exit 1 结束，远端阶段耗时 56.981 秒。
 
-为隔离任务服务影响，又使用远端现有 Codex 配置执行一次只要求返回 `READY`、禁止使用工具的最小模型调用，采用 read-only sandbox，不访问任务服务。该调用仍在 40.467 秒后以 exit 1 结束，记录 5 次重连和最终 502 错误，没有 `READY` 回答，私有探测目录已删除。这把阻塞定位到远端 Codex 当前模型请求路径；现有证据不能继续区分网关及其上游的具体根因，也不支持把它归为任务 API 拒绝。
+为隔离任务服务影响，又使用远端现有 Codex 配置执行一次只要求返回 `READY`、禁止使用工具的最小模型调用，采用 read-only sandbox，不访问任务服务。该调用仍在 40.467 秒后以 exit 1 结束，记录 5 次重连和最终 502 错误，没有 `READY` 回答，私有探测目录已删除。这把当时的阻塞定位到远端 Codex 模型请求路径；当时的证据不能继续区分网关及其上游的具体根因，也不支持把它归为任务 API 拒绝。
 
 公开任务快照显示 `child-remote` 仍为 `offered`、revision=1、records=0，没有领取、执行、进展报告或交付事实。同轮本机 Codex 完成委派，Pi 与 Claude Code 完成交付；由于远端失败，没有继续汇总和 issuer 验收。因此这轮结论为**远端模型环境阻塞**，不能把 SSH 就绪、HTTP 查询成功或本机交付当成远端任务闭环通过。
 
@@ -79,7 +79,29 @@ Claude Code 第三轮在仅对该子进程移除代理环境后完成交付；�
 
 本次后台二进制从干净提交 `0b96e7dd8d1dab2f0e0802e55c4a94989f7b9439` 重新构建，SHA-256 为 `a4d75b3e0c37362908a40682892bd0e8201561268766790c8afa054a16359088`。运行时仅验收脚本包含未提交调整：增加实际远端 HTTP 就绪检查、精确资源记录与异常清理；Go 服务和上游协议未修改。脱敏结果见 [s3-remote-results.json](s3-remote-results.json)。历史 [s3-local-results.json](s3-local-results.json) 保持原样，包含当时的 SSH 超时结论。
 
-本次证明远端网络和认证查询链路可用，没有证明独立远端 Agent 完成任务互操作，也没有直接 HTTPS、跨 authority 或真人验收证据。
+该失败轮次只证明远端网络和认证查询链路可用；以下成功复测单独提供远端任务闭环证据，不改写这次失败记录。
+
+## 代理修正后的四客户端闭环通过
+
+用户修正模型代理后，于 2026-10-31 09:41:38–09:45:19 UTC 重新运行完整验收。本机 Codex、Pi、Claude Code 和远端 Codex 全部 exit 0；公开 HTTP 事实与关联记录也核对通过，不以 CLI 退出码代替任务完成。
+
+| 客户端阶段 | 耗时 | 已核对结果 |
+|---|---|---|
+| 本机 Codex 委派 | 45.059 秒 | 领取并启动父任务，发布三个定向子任务 |
+| Pi 交付 | 71.974 秒 | 使用 Skill 完成领取与交付，计算结果匹配 |
+| Claude Code 交付 | 82.823 秒 | 独立 HTTP 客户端交付，计算结果匹配 |
+| 远端 Codex 交付 | 123.403 秒 | 独立编写 HTTP 客户端，完成 claim/start/report/submit；Submission summary 精确为 `650` |
+| 本机 Codex 汇总 | 51.434 秒 | 读取并核验三个子交付，以各子任务 issuer 身份接受，再汇总提交父任务 |
+
+远端 `child-remote` 在交付后为 `submitted`、revision=5、4 条记录；本机 Codex 验收后为 `completed`、revision=6、5 条记录。公开快照中，Assignment 与 Run 的 assignee 均为远端 Actor；Report 的 reported_by 为远端 Actor，且关联相同 Run；Submission 的 assignment、run、basis 引用一致；Decision 的 decided_by 为 immutable issuer 本机 Codex，且引用该 Submission。验收没有改写历史执行记录。
+
+三个子任务最终均为 `completed`。子任务交付后父任务保持 `active`，没有关系级联；自动化 `human` Actor 越权验收子任务返回 403。Codex 汇总后，由父任务的自动化 `human` issuer 接受交付，父任务最终为 `completed`、revision=7、6 条记录。该 human 主体仍是测试角色，不能据此声称真人日常 review 完成。
+
+本轮还通过正常重启后的任务与固定 cursor 页一致性、跨 Actor cursor 拒绝（403），以及下方确定性 HTTP 反例。数据库及 sidecar 权限均为 `0600`。本机 owned 进程、端口、数据库和私有客户端数据均清理；第二条有界 SSH 精确核对远端私有目录删除、记录的进程组为空、转发端口释放，全部通过。
+
+后台从干净提交 `ae2f8da7cbf5309b6dd4bde180325344f74b8dcd` 构建，二进制 SHA-256 为 `ec5179a839dd65825f4184100a5b839e73b85d14a1ef9b29691246f573b51f15`。该源提交的托管 CI 已通过；本次证据文档提交的 CI 应单独核对。脱敏成功结果见 [s3-remote-success.json](s3-remote-success.json)，此前 [SSH 超时](s3-local-results.json)及[模型 502](s3-remote-results.json)结果文件保持原样。
+
+这次通过的范围是四个真实客户端在同一 authority 上的任务委派、交付、issuer 验收、重启接续及清理，远端传输使用加密 SSH 转发到 loopback HTTP。尚未证明完整 S3 真人日常使用、直接 HTTPS 部署、跨 authority 互操作或压力容量。模型调用耗时不代表后台请求延迟或容量指标。
 
 ## 确定性真实 HTTP 反例
 
@@ -100,7 +122,7 @@ Claude Code 第三轮在仅对该子进程移除代理环境后完成交付；�
 
 HTTP adapter 的 `httptest` 已覆盖真实 application 与文件数据库的登记、定向领取、执行、提交、issuer 验收、历史回放，以及认证/媒体类型/大小/错误映射。查询测试覆盖签名篡改、跨身份、scope、固定分页、重启、过滤、对象与字节容量。Skill 的临时 HTTP fixture 测试覆盖请求原文、意图并发发布、失败保留、私有权限和不泄漏证明。这些是各自层次的证据，不能代替上表真实 CLI 运行结果。
 
-本轮 `make check` 已通过：114 个结构向量、全量 race 测试（application 90.230 秒、storage 1.282 秒）、7 个 Skill 回归测试（3.547 秒）、vet 和 build。后台独立审查通过，发现的两项中等问题已修复，无遗留阻断项。实现与报告一起提交；托管 CI 以[当前工作流](https://github.com/Csneer/task-ledger-demo/actions/workflows/ci.yml)中对应提交的结果为准，本地通过不预先代替托管结果。
+本机完整闭环实现轮的 `make check` 已通过：114 个结构向量、全量 race 测试（application 90.230 秒、storage 1.282 秒）、7 个 Skill 回归测试（3.547 秒）、vet 和 build。后台独立审查通过，发现的两项中等问题已修复，无遗留阻断项。实现与报告一起提交；托管 CI 以[当前工作流](https://github.com/Csneer/task-ledger-demo/actions/workflows/ci.yml)中对应提交的结果为准，本地通过不预先代替托管结果。
 
 ## 已发现并修复的实现问题
 
@@ -121,7 +143,7 @@ HTTP adapter 的 `httptest` 已覆盖真实 application 与文件数据库的登
 ced582f742cf487432d53861fdc324a894dd413f78219206fa63e7185cc3d6db
 ```
 
-脱敏结果见 [s3-local-results.json](s3-local-results.json)。第三轮本机所有模型调用成功，任务事实、重启和清理已核对；前两轮失败记录保留，远端没有改记通过。模型耗时只描述本次调用，不是后台延迟或容量指标。
+脱敏结果见 [s3-local-results.json](s3-local-results.json)。第三轮本机所有模型调用成功，任务事实、重启和清理已核对；前两轮失败及当时远端 SSH 超时记录保留。后续远端成功结果另存为 [s3-remote-success.json](s3-remote-success.json)。模型耗时只描述本次调用，不是后台延迟或容量指标。
 
 ## 复现本机验收
 
@@ -132,6 +154,6 @@ go build -o /tmp/taskledgerd-acceptance ./cmd/taskledgerd
 python3 scripts/agent_acceptance.py --binary /tmp/taskledgerd-acceptance --agent-timeout 420 --pi-provider codex-proxy-local --pi-model gpt-5.6-luna --claude-direct
 ```
 
-上述 provider/model 是本机已有配置，本轮实际使用后通过，不是所有安装的通用默认值；其他环境应使用自己的有效配置。`--claude-direct` 只移除该测试子进程的代理环境，不修改全局设置。该命令会调用真实模型并使用既有账号资源，不属于普通 CI；运行目录、任务数据和 owned 进程由脚本记录与清理。远端使用另行明确授权的 `--remote` 参数；当前复测仅证明 SSH 与任务 HTTP 查询可用，不提供远端任务闭环通过承诺。
+上述 provider/model 是本机已有配置，本轮实际使用后通过，不是所有安装的通用默认值；其他环境应使用自己的有效配置。`--claude-direct` 只移除该测试子进程的代理环境，不修改全局设置。该命令会调用真实模型并使用既有账号资源，不属于普通 CI；运行目录、任务数据和 owned 进程由脚本记录与清理。远端使用另行明确授权的 `--remote` 和绝对路径 `--remote-codex` 参数，并要求远端已有有效模型配置。本次远端任务闭环通过的实际环境与边界见上方成功复测记录，不能保证其他环境的模型连通性。
 
 本轮不证明全部 U/R 场景、真人日常 review、压力吞吐/延迟、磁盘断电、备份恢复、直接 HTTPS 部署、受控 launcher 或另一套 authority 的协议互操作。S3 后续出口以[路线图](../roadmap.md)和[验证计划](../validation.md)为准。

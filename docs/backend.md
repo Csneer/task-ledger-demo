@@ -42,7 +42,7 @@ go build -o /tmp/taskledgerd ./cmd/taskledgerd
 
 将 `/private/path/server.json` 替换为实际配置路径。正常重启只运行第二条命令。启动日志包含监听地址和构建标识；使用合法凭据查询 `service.info` 作为就绪核对，不把端口占用当成目标服务就绪。SIGINT/SIGTERM 会触发最多 10 秒的优雅停止。
 
-默认地址为 `127.0.0.1:8090`。非 loopback IP 必须同时配置 `tls_cert` 与 `tls_key`；客户端必须正常校验证书。远端复测已通过加密 SSH 隧道访问 loopback HTTP，并完成带认证的 `service.info` 查询；模型请求返回 502，尚未形成远端任务领取、交付和验收的闭环证据。此前 SSH 超时记录保留。SSH 转发也不代替直接 LAN HTTPS 部署验证。
+默认地址为 `127.0.0.1:8090`。非 loopback IP 必须同时配置 `tls_cert` 与 `tls_key`；客户端必须正常校验证书。远端 Codex 已通过加密 SSH 隧道访问 loopback HTTP，完成同一 authority 下的任务领取、执行、交付和 issuer 验收；公开任务与关联记录已核对。此前 SSH 超时及模型 502 记录保留。该结果不代替直接 LAN HTTPS 部署或跨 authority 验证。
 
 这些构建、初始化和启动参数已由源码及本轮真实后台启动核对；配置中的占位摘要不能直接运行。完整运行结果、清理和未覆盖项以验收记录为准。
 

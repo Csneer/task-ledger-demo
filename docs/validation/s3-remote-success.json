@@ -1,0 +1,252 @@
+{
+  "status": "passed",
+  "source_commit": "ae2f8da7cbf5309b6dd4bde180325344f74b8dcd",
+  "source_dirty": false,
+  "started_at": "2026-10-31T09:41:38Z",
+  "finished_at": "2026-10-31T09:45:19Z",
+  "agents": {
+    "codex-delegate": {
+      "exit_code": 0,
+      "elapsed_seconds": 45.059
+    },
+    "pi-work": {
+      "exit_code": 0,
+      "elapsed_seconds": 71.974
+    },
+    "claude-work": {
+      "exit_code": 0,
+      "elapsed_seconds": 82.823
+    },
+    "remote-work": {
+      "exit_code": 0,
+      "elapsed_seconds": 123.403,
+      "http_ready": true,
+      "remote_directory_removed": true
+    },
+    "codex-aggregate": {
+      "exit_code": 0,
+      "elapsed_seconds": 51.434
+    }
+  },
+  "scenarios": [
+    {
+      "scenario": "http-concurrent-create-retry",
+      "clients": 6,
+      "fresh": 1,
+      "replayed": 5,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-concurrent-claim",
+      "statuses": [
+        200,
+        409
+      ],
+      "assignments": 1,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-proof-retry-and-old-assignment",
+      "missing_proof": 403,
+      "corrected_same_id": "fresh",
+      "stale_assignment": 409,
+      "unchanged_snapshot": true,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-wire-rejections",
+      "unauthenticated": 401,
+      "wrong_media_type": 415,
+      "duplicate_json_key": 400,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-check-cleanup",
+      "status": "passed",
+      "tasks_cancelled": 2,
+      "sessions_ended": 2
+    },
+    {
+      "scenario": "readiness-and-bootstrap",
+      "authority": "acceptance",
+      "actors": [
+        "human",
+        "codex",
+        "pi",
+        "claude",
+        "remote"
+      ]
+    },
+    {
+      "scenario": "codex-delegate",
+      "cli_exit": 0,
+      "server_fact_checked": false
+    },
+    {
+      "scenario": "pi-work",
+      "cli_exit": 0,
+      "server_fact_checked": true
+    },
+    {
+      "scenario": "claude-work",
+      "cli_exit": 0,
+      "server_fact_checked": true
+    },
+    {
+      "scenario": "remote-work",
+      "cli_exit": 0,
+      "http_ready": true,
+      "server_fact_checked": true,
+      "remote_directory_removed": true
+    },
+    {
+      "scenario": "independent-deliveries",
+      "submitted": 3,
+      "parent_state": "active"
+    },
+    {
+      "scenario": "parent-relation-does-not-authorize-child-decision",
+      "status": 403
+    },
+    {
+      "scenario": "codex-aggregate",
+      "cli_exit": 0,
+      "server_fact_checked": false
+    },
+    {
+      "scenario": "issuer-acceptance",
+      "children": "completed",
+      "parent": "completed",
+      "human_role": "automated test actor, not live human review"
+    },
+    {
+      "scenario": "restart-and-cursor-ownership",
+      "fixed_page_survived": true,
+      "different_actor_status": 403
+    },
+    {
+      "scenario": "http-scoped-event-pages",
+      "fixed_page_repeat": true,
+      "events": 7,
+      "unique_events": 7,
+      "task_create_events": 1,
+      "tampered_cursor": 400,
+      "evidence": "deterministic HTTP harness, not independent Agent evidence"
+    }
+  ],
+  "observed_tasks": [
+    {
+      "task_id": "child-claude",
+      "state": "completed",
+      "revision": 6,
+      "records": 5
+    },
+    {
+      "task_id": "child-pi",
+      "state": "completed",
+      "revision": 6,
+      "records": 5
+    },
+    {
+      "task_id": "child-remote",
+      "state": "completed",
+      "revision": 6,
+      "records": 5
+    },
+    {
+      "task_id": "negative-proof-f813a834d577",
+      "state": "cancelled",
+      "revision": 7,
+      "records": 3
+    },
+    {
+      "task_id": "negative-retry-f813a834d577",
+      "state": "cancelled",
+      "revision": 4,
+      "records": 1
+    },
+    {
+      "task_id": "parent",
+      "state": "completed",
+      "revision": 7,
+      "records": 6
+    }
+  ],
+  "database_modes": {
+    "ledger.db-shm": "0o600",
+    "ledger.db-wal": "0o600",
+    "ledger.db": "0o600"
+  },
+  "service_port_released": true,
+  "temporary_data_removed": true,
+  "binary_sha256": "ec5179a839dd65825f4184100a5b839e73b85d14a1ef9b29691246f573b51f15",
+  "scope": "Local Codex, Pi, Claude Code and remote Codex complete tasks against one isolated authority; synthetic human actor, no frontend",
+  "transport": "Loopback HTTP through encrypted SSH reverse forwarding for the remote client",
+  "versions": {
+    "codex": "0.164.0",
+    "remote_codex": "0.164.0",
+    "pi": "0.85.1",
+    "claude_code": "2.1.231",
+    "protocol": "task-core-draft-1",
+    "binding": "ledger-http-draft-1"
+  },
+  "remote_fact_verification": {
+    "status": "passed",
+    "task_id": "child-remote",
+    "assignee": {
+      "kind": "agent",
+      "id": "remote"
+    },
+    "issuer": {
+      "kind": "agent",
+      "id": "codex"
+    },
+    "submitted_state": "submitted",
+    "completed_state": "completed",
+    "submission_summary": "650",
+    "report_count": 1,
+    "submission_revision": 5,
+    "completed_revision": 6,
+    "submission_record_count": 4,
+    "completed_record_count": 5,
+    "checks": [
+      "assignment-and-run-owned-by-remote",
+      "report-linked-to-run",
+      "submission-linked-to-assignment-and-run",
+      "submission-basis-matches-run",
+      "issuer-only-accepted-decision",
+      "decision-links-submission-and-expectations",
+      "execution-records-preserved-after-decision",
+      "all-record-task-references-match"
+    ]
+  },
+  "cleanup": {
+    "owned_local_processes_stopped": true,
+    "owned_local_processes_absent_on_recheck": true,
+    "local_private_data_absent_on_recheck": true,
+    "remote_directory_removed": true,
+    "remote_process_group_empty": true,
+    "remote_forward_port_released": true,
+    "remote_checks": "Separate bounded SSH call checked the exact recorded process group, directory and forwarded port"
+  },
+  "environment_change": "User reported correcting proxy configuration before this run; the runner did not change global client settings or models",
+  "previous_attempts": [
+    {
+      "file": "s3-local-results.json",
+      "remote_status": "SSH timeout",
+      "preserved": true
+    },
+    {
+      "file": "s3-remote-results.json",
+      "remote_status": "HTTP ready; model endpoint returned 502",
+      "preserved": true
+    }
+  ],
+  "not_proven": [
+    "Direct LAN HTTPS deployment",
+    "Cross-authority interoperability",
+    "Live human daily-use acceptance",
+    "Load or latency capacity",
+    "Abrupt power failure and backup restoration"
+  ]
+}
