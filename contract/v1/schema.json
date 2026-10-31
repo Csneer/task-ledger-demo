@@ -1,0 +1,4006 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:task-ledger:ledger-http-draft-1",
+  "title": "Task Ledger HTTP binding contract; schemas do not prove runtime behavior",
+  "$defs": {
+    "AgentRef": {
+      "allOf": [
+        {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "agent"
+            }
+          }
+        }
+      ]
+    },
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "maxItems": 64
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "Participant": {
+      "type": "object",
+      "properties": {
+        "actor": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "state": {
+          "enum": [
+            "enabled",
+            "read_only"
+          ]
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "profile": {
+          "$ref": "#/$defs/Profile"
+        }
+      },
+      "required": [
+        "actor",
+        "display_name",
+        "state",
+        "revision",
+        "profile"
+      ],
+      "additionalProperties": false
+    },
+    "Project": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "created_by": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+        }
+      },
+      "required": [
+        "project_id",
+        "title",
+        "description",
+        "revision",
+        "created_by"
+      ],
+      "additionalProperties": false
+    },
+    "Source": {
+      "type": "object",
+      "properties": {
+        "task": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/TaskRef"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "submission_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "task",
+        "revision"
+      ],
+      "additionalProperties": false
+    },
+    "Handoff": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "author": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          },
+          "maxItems": 100
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "maxItems": 100
+        },
+        "recorded_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        }
+      },
+      "required": [
+        "project_id",
+        "revision",
+        "author",
+        "summary",
+        "next_actions",
+        "sources",
+        "recorded_at"
+      ],
+      "additionalProperties": false
+    },
+    "ClaimPolicy": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "const": "workspace"
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "const": "target"
+            },
+            "target": {
+              "$ref": "#/$defs/AgentRef"
+            }
+          },
+          "required": [
+            "mode",
+            "target"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ExecutionBinding": {
+      "type": "object",
+      "properties": {
+        "task": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/TaskRef"
+        },
+        "assignment_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "run_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "enum": [
+            "current",
+            "ended"
+          ]
+        }
+      },
+      "required": [
+        "task",
+        "assignment_id",
+        "generation",
+        "session_id",
+        "revision",
+        "run_id",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "Session": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "actor": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+        },
+        "project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "state": {
+          "enum": [
+            "active",
+            "ended"
+          ]
+        },
+        "phase": {
+          "enum": [
+            "preparing",
+            "implementing",
+            "testing",
+            "waiting"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "proof_epoch": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "created_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "last_seen_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "host_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "workspace_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "outcome": {
+          "enum": [
+            "done",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "ended_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        }
+      },
+      "required": [
+        "session_id",
+        "actor",
+        "project_id",
+        "goal",
+        "state",
+        "phase",
+        "summary",
+        "revision",
+        "proof_epoch",
+        "created_at",
+        "last_seen_at"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "ended"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "outcome",
+              "ended_at"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "outcome"
+                  ]
+                },
+                {
+                  "required": [
+                    "ended_at"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "SessionView": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/Session"
+        },
+        "current_binding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CurrentBinding"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "session",
+        "current_binding"
+      ],
+      "additionalProperties": false
+    },
+    "LaunchProfile": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "target": {
+          "$ref": "#/$defs/AgentRef"
+        },
+        "runner_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "catalog_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "profile_id",
+        "revision",
+        "target",
+        "runner_id",
+        "label",
+        "enabled",
+        "catalog_revision"
+      ],
+      "additionalProperties": false
+    },
+    "Wake": {
+      "type": "object",
+      "properties": {
+        "wake_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "task": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/TaskRef"
+        },
+        "target": {
+          "$ref": "#/$defs/AgentRef"
+        },
+        "profile_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "profile_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "runner_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "requested_by": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+        },
+        "state": {
+          "enum": [
+            "queued",
+            "reserved",
+            "authorized",
+            "started",
+            "failed",
+            "unknown",
+            "skipped"
+          ]
+        },
+        "activation_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outcome_evidence": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "wake_id",
+        "revision",
+        "task",
+        "target",
+        "profile_id",
+        "profile_revision",
+        "runner_id",
+        "requested_by",
+        "state",
+        "activation_id",
+        "outcome_evidence"
+      ],
+      "additionalProperties": false
+    },
+    "TaskMeta": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "claim_policy": {
+          "$ref": "#/$defs/ClaimPolicy"
+        },
+        "policy_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "execution_binding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CurrentBinding"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "project_id",
+        "claim_policy",
+        "policy_revision",
+        "execution_binding"
+      ],
+      "additionalProperties": false
+    },
+    "TaskBundle": {
+      "type": "object",
+      "properties": {
+        "snapshot": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Snapshot"
+        },
+        "application": {
+          "$ref": "#/$defs/TaskMeta"
+        }
+      },
+      "required": [
+        "snapshot",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "ApplicationEvent": {
+      "type": "object",
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "entity_type": {
+          "enum": [
+            "participant",
+            "project",
+            "handoff",
+            "policy",
+            "session",
+            "binding",
+            "wake",
+            "profile"
+          ]
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "actor": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+        },
+        "runner_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "after": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Participant"
+            },
+            {
+              "$ref": "#/$defs/Project"
+            },
+            {
+              "$ref": "#/$defs/Handoff"
+            },
+            {
+              "$ref": "#/$defs/TaskMeta"
+            },
+            {
+              "$ref": "#/$defs/Session"
+            },
+            {
+              "$ref": "#/$defs/ExecutionBinding"
+            },
+            {
+              "$ref": "#/$defs/Wake"
+            },
+            {
+              "$ref": "#/$defs/LaunchProfile"
+            }
+          ]
+        },
+        "removed": {
+          "const": false
+        },
+        "task": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/TaskRef"
+        }
+      },
+      "required": [
+        "event_id",
+        "operation",
+        "entity_type",
+        "entity_id",
+        "revision",
+        "after",
+        "removed"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "required": [
+                "actor"
+              ],
+              "not": {
+                "required": [
+                  "runner_id"
+                ]
+              }
+            },
+            {
+              "required": [
+                "runner_id"
+              ],
+              "not": {
+                "required": [
+                  "actor"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": "participant"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "after": {
+                "$ref": "#/$defs/Participant"
+              }
+            },
+            "not": {
+              "required": [
+                "task"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": "project"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "after": {
+                "$ref": "#/$defs/Project"
+              }
+            },
+            "not": {
+              "required": [
+                "task"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": "handoff"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "after": {
+                "$ref": "#/$defs/Handoff"
+              }
+            },
+            "not": {
+              "required": [
+                "task"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": "policy"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "after": {
+                "$ref": "#/$defs/TaskMeta"
+              }
+            },
+            "required": [
+              "task"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": "session"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "after": {
+                "$ref": "#/$defs/Session"
+              }
+            },
+            "not": {
+              "required": [
+                "task"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": "binding"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "after": {
+                "$ref": "#/$defs/ExecutionBinding"
+              }
+            },
+            "required": [
+              "task"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": "wake"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "after": {
+                "$ref": "#/$defs/Wake"
+              }
+            },
+            "required": [
+              "task"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "entity_type": {
+                "const": "profile"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "after": {
+                "$ref": "#/$defs/LaunchProfile"
+              }
+            },
+            "not": {
+              "required": [
+                "task"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "LogEntry": {
+      "type": "object",
+      "properties": {
+        "position": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "recorded_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d{3}Z$"
+        },
+        "source": {
+          "enum": [
+            "core",
+            "application"
+          ]
+        },
+        "event": {
+          "oneOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Event"
+            },
+            {
+              "$ref": "#/$defs/ApplicationEvent"
+            }
+          ]
+        }
+      },
+      "required": [
+        "position",
+        "recorded_at",
+        "source",
+        "event"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "core"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "event": {
+                "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Event"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "event": {
+                "$ref": "#/$defs/ApplicationEvent"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "WakeOption": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "profile_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "profile_id",
+        "profile_revision"
+      ],
+      "additionalProperties": false
+    },
+    "CommandApplicationCreate": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "claim_policy": {
+          "$ref": "#/$defs/ClaimPolicy"
+        },
+        "wake": {
+          "$ref": "#/$defs/WakeOption"
+        }
+      },
+      "required": [
+        "project_id",
+        "claim_policy"
+      ],
+      "additionalProperties": false
+    },
+    "Command_task_create": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "task.create"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "$ref": "#/$defs/CommandApplicationCreate"
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_task_revise": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "task.revise"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_task_claim": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "task.claim"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "session_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_run_start": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "run.start"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_run_report": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "run.report"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_run_submit": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "run.submit"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_run_fail": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "run.fail"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_task_decide": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "task.decide"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_assignment_release": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "assignment.release"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_task_reopen": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "task.reopen"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Command_task_cancel": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "command": {
+          "allOf": [
+            {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Command"
+            },
+            {
+              "properties": {
+                "operation": {
+                  "const": "task.cancel"
+                }
+              }
+            }
+          ]
+        },
+        "application": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "command",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "CommandRequest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Command_task_create"
+        },
+        {
+          "$ref": "#/$defs/Command_task_revise"
+        },
+        {
+          "$ref": "#/$defs/Command_task_claim"
+        },
+        {
+          "$ref": "#/$defs/Command_run_start"
+        },
+        {
+          "$ref": "#/$defs/Command_run_report"
+        },
+        {
+          "$ref": "#/$defs/Command_run_submit"
+        },
+        {
+          "$ref": "#/$defs/Command_run_fail"
+        },
+        {
+          "$ref": "#/$defs/Command_task_decide"
+        },
+        {
+          "$ref": "#/$defs/Command_assignment_release"
+        },
+        {
+          "$ref": "#/$defs/Command_task_reopen"
+        },
+        {
+          "$ref": "#/$defs/Command_task_cancel"
+        }
+      ]
+    },
+    "CommandSuccess": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Result"
+        },
+        "application": {
+          "type": "object",
+          "properties": {
+            "task_meta": {
+              "$ref": "#/$defs/TaskMeta"
+            },
+            "wake": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Wake"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "task_meta",
+            "wake"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "result",
+        "application"
+      ],
+      "additionalProperties": false
+    },
+    "Action_participant_create": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "participant.create"
+        },
+        "expected_revision": {
+          "const": 0
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "actor": {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+            },
+            "display_name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "state": {
+              "enum": [
+                "enabled",
+                "read_only"
+              ]
+            },
+            "profile": {
+              "$ref": "#/$defs/Profile"
+            }
+          },
+          "required": [
+            "actor",
+            "display_name",
+            "state",
+            "profile"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_participant_create": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Participant"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_participant_update": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "participant.update"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "actor": {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+            },
+            "display_name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "state": {
+              "enum": [
+                "enabled",
+                "read_only"
+              ]
+            },
+            "profile": {
+              "$ref": "#/$defs/Profile"
+            }
+          },
+          "required": [
+            "actor",
+            "display_name",
+            "state",
+            "profile"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_participant_update": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Participant"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_project_create": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "project.create"
+        },
+        "expected_revision": {
+          "const": 0
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "project_id",
+            "title",
+            "description"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_project_create": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Project"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_project_update": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "project.update"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "project_id",
+            "title",
+            "description"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_project_update": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Project"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_handoff_put": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "handoff.put"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "next_actions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8192
+              },
+              "maxItems": 100
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Source"
+              },
+              "maxItems": 100
+            }
+          },
+          "required": [
+            "project_id",
+            "summary",
+            "next_actions",
+            "sources"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_handoff_put": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Handoff"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_claim_policy_update": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "claim_policy.update"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "task": {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/TaskRef"
+            },
+            "expected_task_revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "claim_policy": {
+              "$ref": "#/$defs/ClaimPolicy"
+            }
+          },
+          "required": [
+            "task",
+            "expected_task_revision",
+            "claim_policy"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_claim_policy_update": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/TaskMeta"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_session_begin": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "session.begin"
+        },
+        "expected_revision": {
+          "const": 0
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "project_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "goal": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "proof_digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "provider": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "host_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "workspace_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "session_id",
+            "project_id",
+            "goal",
+            "proof_digest"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_session_begin": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Session"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_session_update": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "session.update"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "phase": {
+              "enum": [
+                "preparing",
+                "implementing",
+                "testing",
+                "waiting"
+              ]
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "session_id",
+            "phase",
+            "summary"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_session_update": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Session"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_session_rotate": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "session.rotate"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "proof_digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "session_id",
+            "proof_digest"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_session_rotate": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Session"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_session_end": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "session.end"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "outcome": {
+              "enum": [
+                "done",
+                "failed",
+                "cancelled"
+              ]
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "session_id",
+            "outcome",
+            "summary"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_session_end": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Session"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_session_transfer": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "session.transfer"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "task": {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/TaskRef"
+            },
+            "assignment_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "generation": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "target_session_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "task",
+            "assignment_id",
+            "generation",
+            "target_session_id",
+            "reason"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_session_transfer": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/ExecutionBinding"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_wake_request": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "wake.request"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "task": {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/TaskRef"
+            },
+            "profile_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "profile_revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "task",
+            "profile_id",
+            "profile_revision"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_wake_request": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Wake"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_dispatch_reserve": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "dispatch.reserve"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "wake_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "wake_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_dispatch_reserve": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Wake"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_dispatch_authorize": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "dispatch.authorize"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "wake_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "activation_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "wake_id",
+            "activation_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_dispatch_authorize": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Wake"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_dispatch_report": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "dispatch.report"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "wake_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "activation_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "outcome": {
+              "enum": [
+                "started",
+                "not_started",
+                "unknown"
+              ]
+            },
+            "evidence": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "wake_id",
+            "activation_id",
+            "outcome",
+            "evidence"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_dispatch_report": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Wake"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Action_dispatch_resolve": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "operation": {
+          "const": "dispatch.resolve"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "wake_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "outcome": {
+              "enum": [
+                "started",
+                "not_started"
+              ]
+            },
+            "evidence": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "wake_id",
+            "outcome",
+            "evidence"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "operation",
+        "expected_revision",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "Result_dispatch_resolve": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "result": {
+          "$ref": "#/$defs/Wake"
+        }
+      },
+      "required": [
+        "binding_version",
+        "request_id",
+        "replayed",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "ActionRequest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Action_participant_create"
+        },
+        {
+          "$ref": "#/$defs/Action_participant_update"
+        },
+        {
+          "$ref": "#/$defs/Action_project_create"
+        },
+        {
+          "$ref": "#/$defs/Action_project_update"
+        },
+        {
+          "$ref": "#/$defs/Action_handoff_put"
+        },
+        {
+          "$ref": "#/$defs/Action_claim_policy_update"
+        },
+        {
+          "$ref": "#/$defs/Action_session_begin"
+        },
+        {
+          "$ref": "#/$defs/Action_session_update"
+        },
+        {
+          "$ref": "#/$defs/Action_session_rotate"
+        },
+        {
+          "$ref": "#/$defs/Action_session_end"
+        },
+        {
+          "$ref": "#/$defs/Action_session_transfer"
+        },
+        {
+          "$ref": "#/$defs/Action_wake_request"
+        },
+        {
+          "$ref": "#/$defs/Action_dispatch_reserve"
+        },
+        {
+          "$ref": "#/$defs/Action_dispatch_authorize"
+        },
+        {
+          "$ref": "#/$defs/Action_dispatch_report"
+        },
+        {
+          "$ref": "#/$defs/Action_dispatch_resolve"
+        }
+      ]
+    },
+    "ActionSuccess": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Result_participant_create"
+        },
+        {
+          "$ref": "#/$defs/Result_participant_update"
+        },
+        {
+          "$ref": "#/$defs/Result_project_create"
+        },
+        {
+          "$ref": "#/$defs/Result_project_update"
+        },
+        {
+          "$ref": "#/$defs/Result_handoff_put"
+        },
+        {
+          "$ref": "#/$defs/Result_claim_policy_update"
+        },
+        {
+          "$ref": "#/$defs/Result_session_begin"
+        },
+        {
+          "$ref": "#/$defs/Result_session_update"
+        },
+        {
+          "$ref": "#/$defs/Result_session_rotate"
+        },
+        {
+          "$ref": "#/$defs/Result_session_end"
+        },
+        {
+          "$ref": "#/$defs/Result_session_transfer"
+        },
+        {
+          "$ref": "#/$defs/Result_wake_request"
+        },
+        {
+          "$ref": "#/$defs/Result_dispatch_reserve"
+        },
+        {
+          "$ref": "#/$defs/Result_dispatch_authorize"
+        },
+        {
+          "$ref": "#/$defs/Result_dispatch_report"
+        },
+        {
+          "$ref": "#/$defs/Result_dispatch_resolve"
+        }
+      ]
+    },
+    "TaskSnapshotResult": {
+      "type": "object",
+      "properties": {
+        "bundle": {
+          "$ref": "#/$defs/TaskBundle"
+        },
+        "watermark": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "event_cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "bundle",
+        "watermark",
+        "event_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "WorkspaceSnapshotResult": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TaskBundle"
+          },
+          "maxItems": 1000
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Project"
+          },
+          "maxItems": 1000
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Participant"
+          },
+          "maxItems": 1000
+        },
+        "handoffs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Handoff"
+          },
+          "maxItems": 1000
+        },
+        "watermark": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "event_cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SessionView"
+          },
+          "maxItems": 1000
+        },
+        "wakes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Wake"
+          },
+          "maxItems": 1000
+        },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LaunchProfile"
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": [
+        "tasks",
+        "projects",
+        "participants",
+        "handoffs",
+        "watermark",
+        "event_cursor",
+        "sessions",
+        "wakes",
+        "profiles"
+      ],
+      "additionalProperties": false
+    },
+    "EventOpenResult": {
+      "type": "object",
+      "properties": {
+        "cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "watermark": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "cursor",
+        "watermark"
+      ],
+      "additionalProperties": false
+    },
+    "EventReadResult": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LogEntry"
+          },
+          "maxItems": 200
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "follow_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "done": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "events",
+        "next_cursor",
+        "follow_cursor",
+        "done"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "done": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "next_cursor": {
+                "type": "null"
+              },
+              "follow_cursor": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "next_cursor": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "follow_cursor": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ProfilesResult": {
+      "type": "object",
+      "properties": {
+        "profiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LaunchProfile"
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": [
+        "profiles"
+      ],
+      "additionalProperties": false
+    },
+    "PendingResult": {
+      "type": "object",
+      "properties": {
+        "wakes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Wake"
+          },
+          "maxItems": 200
+        }
+      },
+      "required": [
+        "wakes"
+      ],
+      "additionalProperties": false
+    },
+    "ServiceInfo": {
+      "type": "object",
+      "properties": {
+        "authority_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "protocol_version": {
+          "const": "task-core-draft-1"
+        },
+        "upstream_commit": {
+          "const": "e6dae9a6127537af94f0f5127e8d590a1e6a3f1a"
+        },
+        "core_operations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "task.create",
+              "task.revise",
+              "task.claim",
+              "run.start",
+              "run.report",
+              "run.submit",
+              "run.fail",
+              "task.decide",
+              "assignment.release",
+              "task.reopen",
+              "task.cancel"
+            ]
+          },
+          "maxItems": 11,
+          "minItems": 11,
+          "uniqueItems": true
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "request_bytes": {
+              "const": 1048576
+            },
+            "response_bytes": {
+              "const": 16777216
+            },
+            "snapshot_tasks": {
+              "const": 1000
+            },
+            "page_events": {
+              "const": 200
+            }
+          },
+          "required": [
+            "request_bytes",
+            "response_bytes",
+            "snapshot_tasks",
+            "page_events"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "authority_id",
+        "binding_version",
+        "protocol_version",
+        "upstream_commit",
+        "core_operations",
+        "limits"
+      ],
+      "additionalProperties": false
+    },
+    "Query_service_info": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "operation": {
+          "const": "service.info"
+        },
+        "body": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "operation",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "View_service_info": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "#/$defs/ServiceInfo"
+        }
+      },
+      "required": [
+        "binding_version",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Query_task_snapshot": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "operation": {
+          "const": "task.snapshot"
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "task": {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/TaskRef"
+            }
+          },
+          "required": [
+            "task"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "operation",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "View_task_snapshot": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "#/$defs/TaskSnapshotResult"
+        }
+      },
+      "required": [
+        "binding_version",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Query_workspace_snapshot": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "operation": {
+          "const": "workspace.snapshot"
+        },
+        "body": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "operation",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "View_workspace_snapshot": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "#/$defs/WorkspaceSnapshotResult"
+        }
+      },
+      "required": [
+        "binding_version",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Query_events_open": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "operation": {
+          "const": "events.open"
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "task": {
+              "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/TaskRef"
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "operation",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "View_events_open": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "#/$defs/EventOpenResult"
+        }
+      },
+      "required": [
+        "binding_version",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Query_events_read": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "operation": {
+          "const": "events.read"
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "cursor": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          "required": [
+            "cursor",
+            "limit"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "operation",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "View_events_read": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "#/$defs/EventReadResult"
+        }
+      },
+      "required": [
+        "binding_version",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Query_session_get": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "operation": {
+          "const": "session.get"
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "session_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "operation",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "View_session_get": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "#/$defs/SessionView"
+        }
+      },
+      "required": [
+        "binding_version",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Query_wake_get": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "operation": {
+          "const": "wake.get"
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "wake_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "wake_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "operation",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "View_wake_get": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "#/$defs/Wake"
+        }
+      },
+      "required": [
+        "binding_version",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Query_profiles_list": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "operation": {
+          "const": "profiles.list"
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "$ref": "#/$defs/AgentRef"
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "operation",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "View_profiles_list": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "#/$defs/ProfilesResult"
+        }
+      },
+      "required": [
+        "binding_version",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Query_dispatch_pending": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "operation": {
+          "const": "dispatch.pending"
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          "required": [
+            "limit"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "binding_version",
+        "operation",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "View_dispatch_pending": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "result": {
+          "$ref": "#/$defs/PendingResult"
+        }
+      },
+      "required": [
+        "binding_version",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "QueryRequest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Query_service_info"
+        },
+        {
+          "$ref": "#/$defs/Query_task_snapshot"
+        },
+        {
+          "$ref": "#/$defs/Query_workspace_snapshot"
+        },
+        {
+          "$ref": "#/$defs/Query_events_open"
+        },
+        {
+          "$ref": "#/$defs/Query_events_read"
+        },
+        {
+          "$ref": "#/$defs/Query_session_get"
+        },
+        {
+          "$ref": "#/$defs/Query_wake_get"
+        },
+        {
+          "$ref": "#/$defs/Query_profiles_list"
+        },
+        {
+          "$ref": "#/$defs/Query_dispatch_pending"
+        }
+      ]
+    },
+    "QuerySuccess": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/View_service_info"
+        },
+        {
+          "$ref": "#/$defs/View_task_snapshot"
+        },
+        {
+          "$ref": "#/$defs/View_workspace_snapshot"
+        },
+        {
+          "$ref": "#/$defs/View_events_open"
+        },
+        {
+          "$ref": "#/$defs/View_events_read"
+        },
+        {
+          "$ref": "#/$defs/View_session_get"
+        },
+        {
+          "$ref": "#/$defs/View_wake_get"
+        },
+        {
+          "$ref": "#/$defs/View_profiles_list"
+        },
+        {
+          "$ref": "#/$defs/View_dispatch_pending"
+        }
+      ]
+    },
+    "BindingError": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "const": "binding"
+        },
+        "code": {
+          "enum": [
+            "INVALID_MESSAGE",
+            "UNSUPPORTED_BINDING",
+            "UNSUPPORTED_OPERATION",
+            "UNAUTHENTICATED",
+            "FORBIDDEN",
+            "AUTHORITY_MISMATCH",
+            "NOT_FOUND",
+            "ALREADY_EXISTS",
+            "STALE_REVISION",
+            "INVALID_STATE",
+            "IDEMPOTENCY_CONFLICT",
+            "SESSION_PROOF_REQUIRED",
+            "SESSION_ENDED",
+            "SESSION_BUSY",
+            "SESSION_MISMATCH",
+            "PROFILE_UNAVAILABLE",
+            "WAKE_IN_PROGRESS",
+            "INVALID_CURSOR",
+            "CURSOR_RESET_REQUIRED",
+            "CAPACITY_LIMIT",
+            "OVERLOADED",
+            "INTERNAL_ERROR"
+          ]
+        }
+      },
+      "required": [
+        "scope",
+        "code"
+      ],
+      "additionalProperties": false
+    },
+    "CoreError": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "const": "core"
+        },
+        "error": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/Error"
+        }
+      },
+      "required": [
+        "scope",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "error": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/BindingError"
+            },
+            {
+              "$ref": "#/$defs/CoreError"
+            }
+          ]
+        }
+      },
+      "required": [
+        "binding_version",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "CommandResponse": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/CommandSuccess"
+        },
+        {
+          "$ref": "#/$defs/ErrorResponse"
+        }
+      ]
+    },
+    "ActionResponse": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ActionSuccess"
+        },
+        {
+          "$ref": "#/$defs/ErrorResponse"
+        }
+      ]
+    },
+    "QueryResponse": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/QuerySuccess"
+        },
+        {
+          "$ref": "#/$defs/ErrorResponse"
+        }
+      ]
+    },
+    "CurrentBinding": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ExecutionBinding"
+        },
+        {
+          "properties": {
+            "state": {
+              "const": "current"
+            }
+          }
+        }
+      ]
+    },
+    "SkillConfig": {
+      "type": "object",
+      "properties": {
+        "config_version": {
+          "const": "ledger-skill-config-1"
+        },
+        "service_url": {
+          "type": "string",
+          "pattern": "^https?://",
+          "maxLength": 4096
+        },
+        "authority_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "protocol_version": {
+          "const": "task-core-draft-1"
+        },
+        "actor": {
+          "$ref": "urn:agent-task-bridge:task-core-draft-1#/$defs/ActorRef"
+        },
+        "credential_env": {
+          "type": "string",
+          "pattern": "^[A-Z_][A-Z0-9_]*$"
+        },
+        "default_project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "intent_directory": {
+          "type": "string",
+          "pattern": "^/",
+          "maxLength": 4096
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "config_version",
+        "service_url",
+        "authority_id",
+        "binding_version",
+        "protocol_version",
+        "actor",
+        "credential_env",
+        "default_project_id",
+        "intent_directory"
+      ],
+      "additionalProperties": false
+    },
+    "LaunchArgument": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "literal": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          },
+          "required": [
+            "literal"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field": {
+              "enum": [
+                "authority_id",
+                "task_id",
+                "service_url",
+                "wake_id",
+                "activation_id"
+              ]
+            }
+          },
+          "required": [
+            "field"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "PrivateLaunchProfile": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "target": {
+          "$ref": "#/$defs/AgentRef"
+        },
+        "runner_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "executable": {
+          "type": "string",
+          "pattern": "^/",
+          "maxLength": 4096
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LaunchArgument"
+          },
+          "maxItems": 64
+        },
+        "working_directory": {
+          "type": "string",
+          "pattern": "^/",
+          "maxLength": 4096
+        },
+        "environment_refs": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[A-Z_][A-Z0-9_]*$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[A-Z_][A-Z0-9_]*$"
+          },
+          "maxProperties": 64
+        }
+      },
+      "required": [
+        "profile_id",
+        "revision",
+        "target",
+        "runner_id",
+        "label",
+        "enabled",
+        "executable",
+        "arguments",
+        "working_directory",
+        "environment_refs"
+      ],
+      "additionalProperties": false
+    },
+    "RunnerConfig": {
+      "type": "object",
+      "properties": {
+        "config_version": {
+          "const": "ledger-runner-config-1"
+        },
+        "runner_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "service_url": {
+          "type": "string",
+          "pattern": "^https?://",
+          "maxLength": 4096
+        },
+        "authority_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "binding_version": {
+          "const": "ledger-http-draft-1"
+        },
+        "credential_env": {
+          "type": "string",
+          "pattern": "^[A-Z_][A-Z0-9_]*$"
+        },
+        "state_directory": {
+          "type": "string",
+          "pattern": "^/",
+          "maxLength": 4096
+        },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PrivateLaunchProfile"
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": [
+        "config_version",
+        "runner_id",
+        "service_url",
+        "authority_id",
+        "binding_version",
+        "credential_env",
+        "state_directory",
+        "profiles"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

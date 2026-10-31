@@ -1,7 +1,7 @@
 # Repository working rules
 
 - This is Task Ledger Demo, an independent open-source application and practical validation host for Agent↔Task Bridge. Read README.md, docs/architecture.md, protocol/README.md and the pinned upstream semantics before changing behavior.
-- Current scope is a project skeleton and design. Do not represent package compilation, examples, or written scenarios as implemented business behavior or completed load testing. Frontend technology is undecided.
+- Current scope is the S1 contract baseline and project skeleton. Read docs/binding.md, docs/contracts/ and contract/v1/ before implementing an interface. Do not represent package compilation, examples, or written scenarios as implemented business behavior or completed load testing. Frontend technology is undecided.
 - Backend language is Go. Do not copy p-drive runtime, its session-status lifecycle, private data, or M1 daemon internals into this project. The selected protocol is task-core-draft-1, not bridge-m1-1.
 - Preserve upstream Task, Assignment, Run, Report, Submission and Decision semantics. A submission is not completion; only the immutable issuer decides. Humans and agents are peers. A relation never implies authority or a state cascade.
 - A Task has one authority and at most one current assignee. Parallel work uses multiple related Tasks. Agent targeting is a host claim policy, never an impersonated claim or an automatic assignment.

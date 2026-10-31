@@ -1,0 +1,3492 @@
+{
+  "cases": [
+    {
+      "id": "command-task.create",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.create-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 0,
+          "operation": "task.create",
+          "body": {
+            "goal": "Review",
+            "expected_result": "Review notes"
+          }
+        },
+        "application": {
+          "project_id": "project-1",
+          "claim_policy": {
+            "mode": "target",
+            "target": {
+              "kind": "agent",
+              "id": "agent-a"
+            }
+          },
+          "wake": {
+            "profile_id": "local-a",
+            "profile_revision": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "command-task.revise",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.revise-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "task.revise",
+          "body": {
+            "goal": "Review",
+            "expected_result": "Review notes with risks",
+            "reason": "Clarify"
+          }
+        },
+        "application": {}
+      }
+    },
+    {
+      "id": "command-task.claim",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.claim-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "task.claim",
+          "body": {}
+        },
+        "application": {
+          "session_id": "session-1"
+        }
+      }
+    },
+    {
+      "id": "command-run.start",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "run.start-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "run.start",
+          "body": {
+            "assignment_id": "assignment-1",
+            "generation": 1,
+            "basis_version": 1
+          }
+        },
+        "application": {}
+      }
+    },
+    {
+      "id": "command-run.report",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "run.report-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "run.report",
+          "body": {
+            "assignment_id": "assignment-1",
+            "generation": 1,
+            "run_id": "run-1",
+            "message": "Checked references"
+          }
+        },
+        "application": {}
+      }
+    },
+    {
+      "id": "command-run.submit",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "run.submit-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "run.submit",
+          "body": {
+            "assignment_id": "assignment-1",
+            "generation": 1,
+            "run_id": "run-1",
+            "basis_version": 1,
+            "summary": "Review notes"
+          }
+        },
+        "application": {}
+      }
+    },
+    {
+      "id": "command-run.fail",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "run.fail-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "run.fail",
+          "body": {
+            "assignment_id": "assignment-1",
+            "generation": 1,
+            "run_id": "run-1",
+            "reason": "Input missing"
+          }
+        },
+        "application": {}
+      }
+    },
+    {
+      "id": "command-task.decide",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.decide-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "task.decide",
+          "body": {
+            "submission_id": "submission-1",
+            "outcome": "accepted",
+            "reason": "Meets expected result"
+          }
+        },
+        "application": {}
+      }
+    },
+    {
+      "id": "command-assignment.release",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "assignment.release-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "assignment.release",
+          "body": {
+            "assignment_id": "assignment-1",
+            "generation": 1,
+            "reason": "Transfer work"
+          }
+        },
+        "application": {}
+      }
+    },
+    {
+      "id": "command-task.reopen",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.reopen-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "task.reopen",
+          "body": {
+            "reason": "Retry"
+          }
+        },
+        "application": {}
+      }
+    },
+    {
+      "id": "command-task.cancel",
+      "definition": "CommandRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.cancel-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "task.cancel",
+          "body": {
+            "reason": "No longer needed"
+          }
+        },
+        "application": {}
+      }
+    },
+    {
+      "id": "command-success",
+      "definition": "CommandResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.create-1",
+          "replayed": false,
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1",
+            "issuer": {
+              "kind": "human",
+              "id": "owner"
+            },
+            "state": "offered",
+            "revision": 1,
+            "expectation_version": 1,
+            "expectations": [
+              {
+                "version": 1,
+                "goal": "Review",
+                "expected_result": "Review notes",
+                "changed_by": {
+                  "kind": "human",
+                  "id": "owner"
+                },
+                "reason": "Initial expectation"
+              }
+            ],
+            "generation": 0,
+            "current_assignment_id": null,
+            "current_run_id": null,
+            "pending_submission_id": null,
+            "relations": []
+          },
+          "records": [],
+          "event": {
+            "protocol_version": "task-core-draft-1",
+            "event_id": "event-1",
+            "command_id": "task.create-1",
+            "task": {
+              "authority_id": "personal",
+              "task_id": "task-1"
+            },
+            "revision": 1,
+            "actor": {
+              "kind": "human",
+              "id": "owner"
+            },
+            "operation": "task.create",
+            "task_snapshot": {
+              "authority_id": "personal",
+              "task_id": "task-1",
+              "issuer": {
+                "kind": "human",
+                "id": "owner"
+              },
+              "state": "offered",
+              "revision": 1,
+              "expectation_version": 1,
+              "expectations": [
+                {
+                  "version": 1,
+                  "goal": "Review",
+                  "expected_result": "Review notes",
+                  "changed_by": {
+                    "kind": "human",
+                    "id": "owner"
+                  },
+                  "reason": "Initial expectation"
+                }
+              ],
+              "generation": 0,
+              "current_assignment_id": null,
+              "current_run_id": null,
+              "pending_submission_id": null,
+              "relations": []
+            },
+            "records": []
+          }
+        },
+        "application": {
+          "task_meta": {
+            "project_id": "project-1",
+            "claim_policy": {
+              "mode": "target",
+              "target": {
+                "kind": "agent",
+                "id": "agent-a"
+              }
+            },
+            "policy_revision": 1,
+            "execution_binding": null
+          },
+          "wake": {
+            "wake_id": "wake-1",
+            "revision": 1,
+            "task": {
+              "authority_id": "personal",
+              "task_id": "task-1"
+            },
+            "target": {
+              "kind": "agent",
+              "id": "agent-a"
+            },
+            "profile_id": "local-a",
+            "profile_revision": 1,
+            "runner_id": "runner-1",
+            "requested_by": {
+              "kind": "human",
+              "id": "owner"
+            },
+            "state": "queued",
+            "activation_id": null,
+            "outcome_evidence": null
+          }
+        }
+      }
+    },
+    {
+      "id": "action-participant.create",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "participant.create-1",
+        "operation": "participant.create",
+        "expected_revision": 0,
+        "body": {
+          "actor": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "display_name": "Agent A",
+          "state": "enabled",
+          "profile": {
+            "provider": "generic",
+            "model": "example",
+            "capabilities": [
+              "review"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "result-participant.create",
+      "definition": "Result_participant_create",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "participant.create-1",
+        "replayed": false,
+        "result": {
+          "actor": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "display_name": "Agent A",
+          "state": "enabled",
+          "revision": 1,
+          "profile": {
+            "provider": "generic",
+            "model": "example",
+            "capabilities": [
+              "review"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "action-participant.update",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "participant.update-1",
+        "operation": "participant.update",
+        "expected_revision": 1,
+        "body": {
+          "actor": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "display_name": "Agent A",
+          "state": "read_only",
+          "profile": {}
+        }
+      }
+    },
+    {
+      "id": "result-participant.update",
+      "definition": "Result_participant_update",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "participant.update-1",
+        "replayed": false,
+        "result": {
+          "actor": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "display_name": "Agent A",
+          "state": "read_only",
+          "revision": 2,
+          "profile": {}
+        }
+      }
+    },
+    {
+      "id": "action-project.create",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "project.create-1",
+        "operation": "project.create",
+        "expected_revision": 0,
+        "body": {
+          "project_id": "project-1",
+          "title": "Personal work",
+          "description": "Synthetic public fixture"
+        }
+      }
+    },
+    {
+      "id": "result-project.create",
+      "definition": "Result_project_create",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "project.create-1",
+        "replayed": false,
+        "result": {
+          "project_id": "project-1",
+          "title": "Personal work",
+          "description": "Synthetic public fixture",
+          "revision": 1,
+          "created_by": {
+            "kind": "human",
+            "id": "owner"
+          }
+        }
+      }
+    },
+    {
+      "id": "action-project.update",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "project.update-1",
+        "operation": "project.update",
+        "expected_revision": 1,
+        "body": {
+          "project_id": "project-1",
+          "title": "Updated work",
+          "description": "Synthetic public fixture"
+        }
+      }
+    },
+    {
+      "id": "result-project.update",
+      "definition": "Result_project_update",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "project.update-1",
+        "replayed": false,
+        "result": {
+          "project_id": "project-1",
+          "title": "Updated work",
+          "description": "Synthetic public fixture",
+          "revision": 2,
+          "created_by": {
+            "kind": "human",
+            "id": "owner"
+          }
+        }
+      }
+    },
+    {
+      "id": "action-handoff.put",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "handoff.put-1",
+        "operation": "handoff.put",
+        "expected_revision": 0,
+        "body": {
+          "project_id": "project-1",
+          "summary": "Review the expected result",
+          "next_actions": [
+            "Inspect task-1"
+          ],
+          "sources": [
+            {
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "revision": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "result-handoff.put",
+      "definition": "Result_handoff_put",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "handoff.put-1",
+        "replayed": false,
+        "result": {
+          "project_id": "project-1",
+          "revision": 1,
+          "author": {
+            "kind": "human",
+            "id": "owner"
+          },
+          "summary": "Review the expected result",
+          "next_actions": [
+            "Inspect task-1"
+          ],
+          "sources": [
+            {
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "revision": 1
+            }
+          ],
+          "recorded_at": "2026-10-31T01:00:00.000Z"
+        }
+      }
+    },
+    {
+      "id": "action-claim_policy.update",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "claim_policy.update-1",
+        "operation": "claim_policy.update",
+        "expected_revision": 1,
+        "body": {
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_task_revision": 1,
+          "claim_policy": {
+            "mode": "workspace"
+          }
+        }
+      }
+    },
+    {
+      "id": "result-claim_policy.update",
+      "definition": "Result_claim_policy_update",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "claim_policy.update-1",
+        "replayed": false,
+        "result": {
+          "project_id": "project-1",
+          "claim_policy": {
+            "mode": "workspace"
+          },
+          "policy_revision": 2,
+          "execution_binding": null
+        }
+      }
+    },
+    {
+      "id": "action-session.begin",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.begin-1",
+        "operation": "session.begin",
+        "expected_revision": 0,
+        "body": {
+          "session_id": "session-1",
+          "project_id": "project-1",
+          "goal": "Review result",
+          "proof_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    {
+      "id": "result-session.begin",
+      "definition": "Result_session_begin",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.begin-1",
+        "replayed": false,
+        "result": {
+          "session_id": "session-1",
+          "actor": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "project_id": "project-1",
+          "goal": "Review result",
+          "state": "active",
+          "phase": "preparing",
+          "summary": "Review result",
+          "revision": 1,
+          "proof_epoch": 1,
+          "created_at": "2026-10-31T01:00:00.000Z",
+          "last_seen_at": "2026-10-31T01:00:00.000Z"
+        }
+      }
+    },
+    {
+      "id": "action-session.update",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.update-1",
+        "operation": "session.update",
+        "expected_revision": 1,
+        "body": {
+          "session_id": "session-1",
+          "phase": "implementing",
+          "summary": "Checking results"
+        }
+      }
+    },
+    {
+      "id": "result-session.update",
+      "definition": "Result_session_update",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.update-1",
+        "replayed": false,
+        "result": {
+          "session_id": "session-1",
+          "actor": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "project_id": "project-1",
+          "goal": "Review result",
+          "state": "active",
+          "phase": "implementing",
+          "summary": "Checking results",
+          "revision": 2,
+          "proof_epoch": 1,
+          "created_at": "2026-10-31T01:00:00.000Z",
+          "last_seen_at": "2026-10-31T01:00:00.000Z"
+        }
+      }
+    },
+    {
+      "id": "action-session.rotate",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.rotate-1",
+        "operation": "session.rotate",
+        "expected_revision": 1,
+        "body": {
+          "session_id": "session-1",
+          "proof_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      }
+    },
+    {
+      "id": "result-session.rotate",
+      "definition": "Result_session_rotate",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.rotate-1",
+        "replayed": false,
+        "result": {
+          "session_id": "session-1",
+          "actor": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "project_id": "project-1",
+          "goal": "Review result",
+          "state": "active",
+          "phase": "preparing",
+          "summary": "Review result",
+          "revision": 2,
+          "proof_epoch": 2,
+          "created_at": "2026-10-31T01:00:00.000Z",
+          "last_seen_at": "2026-10-31T01:00:00.000Z"
+        }
+      }
+    },
+    {
+      "id": "action-session.end",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.end-1",
+        "operation": "session.end",
+        "expected_revision": 1,
+        "body": {
+          "session_id": "session-1",
+          "outcome": "done",
+          "summary": "Session ended"
+        }
+      }
+    },
+    {
+      "id": "result-session.end",
+      "definition": "Result_session_end",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.end-1",
+        "replayed": false,
+        "result": {
+          "session_id": "session-1",
+          "actor": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "project_id": "project-1",
+          "goal": "Review result",
+          "state": "ended",
+          "phase": "preparing",
+          "summary": "Session ended",
+          "revision": 2,
+          "proof_epoch": 1,
+          "created_at": "2026-10-31T01:00:00.000Z",
+          "last_seen_at": "2026-10-31T01:00:00.000Z",
+          "outcome": "done",
+          "ended_at": "2026-10-31T01:00:00.000Z"
+        }
+      }
+    },
+    {
+      "id": "action-session.transfer",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.transfer-1",
+        "operation": "session.transfer",
+        "expected_revision": 1,
+        "body": {
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "assignment_id": "assignment-1",
+          "generation": 1,
+          "target_session_id": "session-2",
+          "reason": "Continue in new session"
+        }
+      }
+    },
+    {
+      "id": "result-session.transfer",
+      "definition": "Result_session_transfer",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.transfer-1",
+        "replayed": false,
+        "result": {
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "assignment_id": "assignment-1",
+          "generation": 1,
+          "session_id": "session-2",
+          "revision": 2,
+          "run_id": null,
+          "state": "current"
+        }
+      }
+    },
+    {
+      "id": "action-wake.request",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "wake.request-1",
+        "operation": "wake.request",
+        "expected_revision": 1,
+        "body": {
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "profile_id": "local-a",
+          "profile_revision": 1
+        }
+      }
+    },
+    {
+      "id": "result-wake.request",
+      "definition": "Result_wake_request",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "wake.request-1",
+        "replayed": false,
+        "result": {
+          "wake_id": "wake-1",
+          "revision": 1,
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "target": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "profile_id": "local-a",
+          "profile_revision": 1,
+          "runner_id": "runner-1",
+          "requested_by": {
+            "kind": "human",
+            "id": "owner"
+          },
+          "state": "queued",
+          "activation_id": null,
+          "outcome_evidence": null
+        }
+      }
+    },
+    {
+      "id": "action-dispatch.reserve",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "dispatch.reserve-1",
+        "operation": "dispatch.reserve",
+        "expected_revision": 1,
+        "body": {
+          "wake_id": "wake-1"
+        }
+      }
+    },
+    {
+      "id": "result-dispatch.reserve",
+      "definition": "Result_dispatch_reserve",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "dispatch.reserve-1",
+        "replayed": false,
+        "result": {
+          "wake_id": "wake-1",
+          "revision": 2,
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "target": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "profile_id": "local-a",
+          "profile_revision": 1,
+          "runner_id": "runner-1",
+          "requested_by": {
+            "kind": "human",
+            "id": "owner"
+          },
+          "state": "reserved",
+          "activation_id": "activation-1",
+          "outcome_evidence": null
+        }
+      }
+    },
+    {
+      "id": "action-dispatch.authorize",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "dispatch.authorize-1",
+        "operation": "dispatch.authorize",
+        "expected_revision": 2,
+        "body": {
+          "wake_id": "wake-1",
+          "activation_id": "activation-1"
+        }
+      }
+    },
+    {
+      "id": "result-dispatch.authorize",
+      "definition": "Result_dispatch_authorize",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "dispatch.authorize-1",
+        "replayed": false,
+        "result": {
+          "wake_id": "wake-1",
+          "revision": 3,
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "target": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "profile_id": "local-a",
+          "profile_revision": 1,
+          "runner_id": "runner-1",
+          "requested_by": {
+            "kind": "human",
+            "id": "owner"
+          },
+          "state": "authorized",
+          "activation_id": "activation-1",
+          "outcome_evidence": null
+        }
+      }
+    },
+    {
+      "id": "action-dispatch.report",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "dispatch.report-1",
+        "operation": "dispatch.report",
+        "expected_revision": 3,
+        "body": {
+          "wake_id": "wake-1",
+          "activation_id": "activation-1",
+          "outcome": "unknown",
+          "evidence": "Local attempted marker exists; process outcome unknown"
+        }
+      }
+    },
+    {
+      "id": "result-dispatch.report",
+      "definition": "Result_dispatch_report",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "dispatch.report-1",
+        "replayed": false,
+        "result": {
+          "wake_id": "wake-1",
+          "revision": 4,
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "target": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "profile_id": "local-a",
+          "profile_revision": 1,
+          "runner_id": "runner-1",
+          "requested_by": {
+            "kind": "human",
+            "id": "owner"
+          },
+          "state": "unknown",
+          "activation_id": "activation-1",
+          "outcome_evidence": "Local attempted marker exists; process outcome unknown"
+        }
+      }
+    },
+    {
+      "id": "action-dispatch.resolve",
+      "definition": "ActionRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "dispatch.resolve-1",
+        "operation": "dispatch.resolve",
+        "expected_revision": 4,
+        "body": {
+          "wake_id": "wake-1",
+          "outcome": "not_started",
+          "evidence": "Runner isolated; persistent journal confirms no exec"
+        }
+      }
+    },
+    {
+      "id": "result-dispatch.resolve",
+      "definition": "Result_dispatch_resolve",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "dispatch.resolve-1",
+        "replayed": false,
+        "result": {
+          "wake_id": "wake-1",
+          "revision": 5,
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "target": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "profile_id": "local-a",
+          "profile_revision": 1,
+          "runner_id": "runner-1",
+          "requested_by": {
+            "kind": "human",
+            "id": "owner"
+          },
+          "state": "failed",
+          "activation_id": "activation-1",
+          "outcome_evidence": "Runner isolated; persistent journal confirms no exec"
+        }
+      }
+    },
+    {
+      "id": "query-service.info",
+      "definition": "QueryRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "service.info",
+        "body": {}
+      }
+    },
+    {
+      "id": "view-service.info",
+      "definition": "View_service_info",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "authority_id": "personal",
+          "binding_version": "ledger-http-draft-1",
+          "protocol_version": "task-core-draft-1",
+          "upstream_commit": "e6dae9a6127537af94f0f5127e8d590a1e6a3f1a",
+          "core_operations": [
+            "task.create",
+            "task.revise",
+            "task.claim",
+            "run.start",
+            "run.report",
+            "run.submit",
+            "run.fail",
+            "task.decide",
+            "assignment.release",
+            "task.reopen",
+            "task.cancel"
+          ],
+          "limits": {
+            "request_bytes": 1048576,
+            "response_bytes": 16777216,
+            "snapshot_tasks": 1000,
+            "page_events": 200
+          }
+        }
+      }
+    },
+    {
+      "id": "query-task.snapshot",
+      "definition": "QueryRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "task.snapshot",
+        "body": {
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          }
+        }
+      }
+    },
+    {
+      "id": "view-task.snapshot",
+      "definition": "View_task_snapshot",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "bundle": {
+            "snapshot": {
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1",
+                "issuer": {
+                  "kind": "human",
+                  "id": "owner"
+                },
+                "state": "offered",
+                "revision": 1,
+                "expectation_version": 1,
+                "expectations": [
+                  {
+                    "version": 1,
+                    "goal": "Review",
+                    "expected_result": "Review notes",
+                    "changed_by": {
+                      "kind": "human",
+                      "id": "owner"
+                    },
+                    "reason": "Initial expectation"
+                  }
+                ],
+                "generation": 0,
+                "current_assignment_id": null,
+                "current_run_id": null,
+                "pending_submission_id": null,
+                "relations": []
+              },
+              "records": []
+            },
+            "application": {
+              "project_id": "project-1",
+              "claim_policy": {
+                "mode": "target",
+                "target": {
+                  "kind": "agent",
+                  "id": "agent-a"
+                }
+              },
+              "policy_revision": 1,
+              "execution_binding": null
+            }
+          },
+          "watermark": "wm-task-1",
+          "event_cursor": "follow-task-1"
+        }
+      }
+    },
+    {
+      "id": "query-workspace.snapshot",
+      "definition": "QueryRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "workspace.snapshot",
+        "body": {}
+      }
+    },
+    {
+      "id": "view-workspace.snapshot",
+      "definition": "View_workspace_snapshot",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "tasks": [
+            {
+              "snapshot": {
+                "task": {
+                  "authority_id": "personal",
+                  "task_id": "task-1",
+                  "issuer": {
+                    "kind": "human",
+                    "id": "owner"
+                  },
+                  "state": "offered",
+                  "revision": 1,
+                  "expectation_version": 1,
+                  "expectations": [
+                    {
+                      "version": 1,
+                      "goal": "Review",
+                      "expected_result": "Review notes",
+                      "changed_by": {
+                        "kind": "human",
+                        "id": "owner"
+                      },
+                      "reason": "Initial expectation"
+                    }
+                  ],
+                  "generation": 0,
+                  "current_assignment_id": null,
+                  "current_run_id": null,
+                  "pending_submission_id": null,
+                  "relations": []
+                },
+                "records": []
+              },
+              "application": {
+                "project_id": "project-1",
+                "claim_policy": {
+                  "mode": "target",
+                  "target": {
+                    "kind": "agent",
+                    "id": "agent-a"
+                  }
+                },
+                "policy_revision": 1,
+                "execution_binding": null
+              }
+            }
+          ],
+          "projects": [
+            {
+              "project_id": "project-1",
+              "title": "Personal work",
+              "description": "Synthetic public fixture",
+              "revision": 1,
+              "created_by": {
+                "kind": "human",
+                "id": "owner"
+              }
+            }
+          ],
+          "participants": [
+            {
+              "actor": {
+                "kind": "agent",
+                "id": "agent-a"
+              },
+              "display_name": "Agent A",
+              "state": "enabled",
+              "revision": 1,
+              "profile": {
+                "provider": "generic",
+                "model": "example",
+                "capabilities": [
+                  "review"
+                ]
+              }
+            }
+          ],
+          "handoffs": [
+            {
+              "project_id": "project-1",
+              "revision": 1,
+              "author": {
+                "kind": "human",
+                "id": "owner"
+              },
+              "summary": "Review the expected result",
+              "next_actions": [
+                "Inspect task-1"
+              ],
+              "sources": [
+                {
+                  "task": {
+                    "authority_id": "personal",
+                    "task_id": "task-1"
+                  },
+                  "revision": 1
+                }
+              ],
+              "recorded_at": "2026-10-31T01:00:00.000Z"
+            }
+          ],
+          "sessions": [
+            {
+              "session": {
+                "session_id": "session-1",
+                "actor": {
+                  "kind": "agent",
+                  "id": "agent-a"
+                },
+                "project_id": "project-1",
+                "goal": "Review result",
+                "state": "active",
+                "phase": "preparing",
+                "summary": "Review result",
+                "revision": 1,
+                "proof_epoch": 1,
+                "created_at": "2026-10-31T01:00:00.000Z",
+                "last_seen_at": "2026-10-31T01:00:00.000Z"
+              },
+              "current_binding": null
+            }
+          ],
+          "wakes": [
+            {
+              "wake_id": "wake-1",
+              "revision": 1,
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "target": {
+                "kind": "agent",
+                "id": "agent-a"
+              },
+              "profile_id": "local-a",
+              "profile_revision": 1,
+              "runner_id": "runner-1",
+              "requested_by": {
+                "kind": "human",
+                "id": "owner"
+              },
+              "state": "queued",
+              "activation_id": null,
+              "outcome_evidence": null
+            }
+          ],
+          "profiles": [
+            {
+              "profile_id": "local-a",
+              "revision": 1,
+              "target": {
+                "kind": "agent",
+                "id": "agent-a"
+              },
+              "runner_id": "runner-1",
+              "label": "Agent A on local runner",
+              "enabled": true,
+              "catalog_revision": 1
+            }
+          ],
+          "watermark": "wm-workspace-1",
+          "event_cursor": "follow-workspace-1"
+        }
+      }
+    },
+    {
+      "id": "query-events.open",
+      "definition": "QueryRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "events.open",
+        "body": {}
+      }
+    },
+    {
+      "id": "view-events.open",
+      "definition": "View_events_open",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "cursor": "batch-start",
+          "watermark": "wm-workspace-1"
+        }
+      }
+    },
+    {
+      "id": "query-events.read",
+      "definition": "QueryRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "events.read",
+        "body": {
+          "cursor": "batch-start",
+          "limit": 200
+        }
+      }
+    },
+    {
+      "id": "view-events.read",
+      "definition": "View_events_read",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "events": [
+            {
+              "position": "opaque-position-1",
+              "recorded_at": "2026-10-31T01:00:00.000Z",
+              "source": "core",
+              "event": {
+                "protocol_version": "task-core-draft-1",
+                "event_id": "event-1",
+                "command_id": "task.create-1",
+                "task": {
+                  "authority_id": "personal",
+                  "task_id": "task-1"
+                },
+                "revision": 1,
+                "actor": {
+                  "kind": "human",
+                  "id": "owner"
+                },
+                "operation": "task.create",
+                "task_snapshot": {
+                  "authority_id": "personal",
+                  "task_id": "task-1",
+                  "issuer": {
+                    "kind": "human",
+                    "id": "owner"
+                  },
+                  "state": "offered",
+                  "revision": 1,
+                  "expectation_version": 1,
+                  "expectations": [
+                    {
+                      "version": 1,
+                      "goal": "Review",
+                      "expected_result": "Review notes",
+                      "changed_by": {
+                        "kind": "human",
+                        "id": "owner"
+                      },
+                      "reason": "Initial expectation"
+                    }
+                  ],
+                  "generation": 0,
+                  "current_assignment_id": null,
+                  "current_run_id": null,
+                  "pending_submission_id": null,
+                  "relations": []
+                },
+                "records": []
+              }
+            },
+            {
+              "position": "opaque-position-2",
+              "recorded_at": "2026-10-31T01:00:00.000Z",
+              "source": "application",
+              "event": {
+                "event_id": "app-event-1",
+                "operation": "wake.request",
+                "entity_type": "wake",
+                "entity_id": "wake-1",
+                "revision": 1,
+                "actor": {
+                  "kind": "human",
+                  "id": "owner"
+                },
+                "after": {
+                  "wake_id": "wake-1",
+                  "revision": 1,
+                  "task": {
+                    "authority_id": "personal",
+                    "task_id": "task-1"
+                  },
+                  "target": {
+                    "kind": "agent",
+                    "id": "agent-a"
+                  },
+                  "profile_id": "local-a",
+                  "profile_revision": 1,
+                  "runner_id": "runner-1",
+                  "requested_by": {
+                    "kind": "human",
+                    "id": "owner"
+                  },
+                  "state": "queued",
+                  "activation_id": null,
+                  "outcome_evidence": null
+                },
+                "removed": false,
+                "task": {
+                  "authority_id": "personal",
+                  "task_id": "task-1"
+                }
+              }
+            }
+          ],
+          "next_cursor": null,
+          "follow_cursor": "follow-workspace-1",
+          "done": true
+        }
+      }
+    },
+    {
+      "id": "query-session.get",
+      "definition": "QueryRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "session.get",
+        "body": {
+          "session_id": "session-1"
+        }
+      }
+    },
+    {
+      "id": "view-session.get",
+      "definition": "View_session_get",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "session": {
+            "session_id": "session-1",
+            "actor": {
+              "kind": "agent",
+              "id": "agent-a"
+            },
+            "project_id": "project-1",
+            "goal": "Review result",
+            "state": "active",
+            "phase": "preparing",
+            "summary": "Review result",
+            "revision": 1,
+            "proof_epoch": 1,
+            "created_at": "2026-10-31T01:00:00.000Z",
+            "last_seen_at": "2026-10-31T01:00:00.000Z"
+          },
+          "current_binding": {
+            "task": {
+              "authority_id": "personal",
+              "task_id": "task-1"
+            },
+            "assignment_id": "assignment-1",
+            "generation": 1,
+            "session_id": "session-1",
+            "revision": 1,
+            "run_id": null,
+            "state": "current"
+          }
+        }
+      }
+    },
+    {
+      "id": "query-wake.get",
+      "definition": "QueryRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "wake.get",
+        "body": {
+          "wake_id": "wake-1"
+        }
+      }
+    },
+    {
+      "id": "view-wake.get",
+      "definition": "View_wake_get",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "wake_id": "wake-1",
+          "revision": 1,
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "target": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "profile_id": "local-a",
+          "profile_revision": 1,
+          "runner_id": "runner-1",
+          "requested_by": {
+            "kind": "human",
+            "id": "owner"
+          },
+          "state": "queued",
+          "activation_id": null,
+          "outcome_evidence": null
+        }
+      }
+    },
+    {
+      "id": "query-profiles.list",
+      "definition": "QueryRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "profiles.list",
+        "body": {
+          "target": {
+            "kind": "agent",
+            "id": "agent-a"
+          }
+        }
+      }
+    },
+    {
+      "id": "view-profiles.list",
+      "definition": "View_profiles_list",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "profiles": [
+            {
+              "profile_id": "local-a",
+              "revision": 1,
+              "target": {
+                "kind": "agent",
+                "id": "agent-a"
+              },
+              "runner_id": "runner-1",
+              "label": "Agent A on local runner",
+              "enabled": true,
+              "catalog_revision": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "query-dispatch.pending",
+      "definition": "QueryRequest",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "dispatch.pending",
+        "body": {
+          "limit": 10
+        }
+      }
+    },
+    {
+      "id": "view-dispatch.pending",
+      "definition": "View_dispatch_pending",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "result": {
+          "wakes": [
+            {
+              "wake_id": "wake-1",
+              "revision": 1,
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "target": {
+                "kind": "agent",
+                "id": "agent-a"
+              },
+              "profile_id": "local-a",
+              "profile_revision": 1,
+              "runner_id": "runner-1",
+              "requested_by": {
+                "kind": "human",
+                "id": "owner"
+              },
+              "state": "queued",
+              "activation_id": null,
+              "outcome_evidence": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "reject-missing-expectation",
+      "definition": "CommandRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.create-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 0,
+          "operation": "task.create",
+          "body": {
+            "goal": "Review"
+          }
+        },
+        "application": {
+          "project_id": "project-1",
+          "claim_policy": {
+            "mode": "target",
+            "target": {
+              "kind": "agent",
+              "id": "agent-a"
+            }
+          },
+          "wake": {
+            "profile_id": "local-a",
+            "profile_revision": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "reject-human-agent-target",
+      "definition": "CommandRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.create-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 0,
+          "operation": "task.create",
+          "body": {
+            "goal": "Review",
+            "expected_result": "Review notes"
+          }
+        },
+        "application": {
+          "project_id": "project-1",
+          "claim_policy": {
+            "mode": "target",
+            "target": {
+              "kind": "human",
+              "id": "owner"
+            }
+          },
+          "wake": {
+            "profile_id": "local-a",
+            "profile_revision": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "reject-self-asserted-actor",
+      "definition": "CommandRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "task.claim-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "task.claim",
+          "body": {}
+        },
+        "application": {
+          "session_id": "session-1"
+        },
+        "actor": {
+          "kind": "agent",
+          "id": "agent-a"
+        }
+      }
+    },
+    {
+      "id": "reject-extra-application-field",
+      "definition": "CommandRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "command": {
+          "protocol_version": "task-core-draft-1",
+          "command_id": "run.submit-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "expected_revision": 1,
+          "operation": "run.submit",
+          "body": {
+            "assignment_id": "assignment-1",
+            "generation": 1,
+            "run_id": "run-1",
+            "basis_version": 1,
+            "summary": "Review notes"
+          }
+        },
+        "application": {
+          "session_id": "session-1"
+        }
+      }
+    },
+    {
+      "id": "reject-invalid-proof-digest",
+      "definition": "ActionRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "session.begin-1",
+        "operation": "session.begin",
+        "expected_revision": 0,
+        "body": {
+          "session_id": "session-1",
+          "project_id": "project-1",
+          "goal": "Review result",
+          "proof_digest": "secret"
+        }
+      }
+    },
+    {
+      "id": "reject-resolve-unknown",
+      "definition": "ActionRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "dispatch.resolve-1",
+        "operation": "dispatch.resolve",
+        "expected_revision": 4,
+        "body": {
+          "wake_id": "wake-1",
+          "outcome": "unknown",
+          "evidence": "Runner isolated; persistent journal confirms no exec"
+        }
+      }
+    },
+    {
+      "id": "reject-uploaded-command",
+      "definition": "ActionRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "wake.request-1",
+        "operation": "wake.request",
+        "expected_revision": 1,
+        "body": {
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "profile_id": "local-a",
+          "profile_revision": 1,
+          "command": "sh -c text"
+        }
+      }
+    },
+    {
+      "id": "reject-profile-secret",
+      "definition": "ActionRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "participant.create-1",
+        "operation": "participant.create",
+        "expected_revision": 0,
+        "body": {
+          "actor": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "display_name": "Agent A",
+          "state": "enabled",
+          "profile": {
+            "provider": "generic",
+            "model": "example",
+            "capabilities": [
+              "review"
+            ],
+            "credential": "secret"
+          }
+        }
+      }
+    },
+    {
+      "id": "reject-page-overflow",
+      "definition": "QueryRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "operation": "events.read",
+        "body": {
+          "cursor": "batch-start",
+          "limit": 201
+        }
+      }
+    },
+    {
+      "id": "reject-public-digest",
+      "definition": "Session",
+      "valid": false,
+      "value": {
+        "session_id": "session-1",
+        "actor": {
+          "kind": "agent",
+          "id": "agent-a"
+        },
+        "project_id": "project-1",
+        "goal": "Review result",
+        "state": "active",
+        "phase": "preparing",
+        "summary": "Review result",
+        "revision": 1,
+        "proof_epoch": 1,
+        "created_at": "2026-10-31T01:00:00.000Z",
+        "last_seen_at": "2026-10-31T01:00:00.000Z",
+        "proof_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "reject-ended-without-outcome",
+      "definition": "Session",
+      "valid": false,
+      "value": {
+        "session_id": "session-1",
+        "actor": {
+          "kind": "agent",
+          "id": "agent-a"
+        },
+        "project_id": "project-1",
+        "goal": "Review result",
+        "state": "ended",
+        "phase": "preparing",
+        "summary": "Review result",
+        "revision": 1,
+        "proof_epoch": 1,
+        "created_at": "2026-10-31T01:00:00.000Z",
+        "last_seen_at": "2026-10-31T01:00:00.000Z"
+      }
+    },
+    {
+      "id": "reject-done-next-cursor",
+      "definition": "EventReadResult",
+      "valid": false,
+      "value": {
+        "events": [
+          {
+            "position": "opaque-position-1",
+            "recorded_at": "2026-10-31T01:00:00.000Z",
+            "source": "core",
+            "event": {
+              "protocol_version": "task-core-draft-1",
+              "event_id": "event-1",
+              "command_id": "task.create-1",
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "revision": 1,
+              "actor": {
+                "kind": "human",
+                "id": "owner"
+              },
+              "operation": "task.create",
+              "task_snapshot": {
+                "authority_id": "personal",
+                "task_id": "task-1",
+                "issuer": {
+                  "kind": "human",
+                  "id": "owner"
+                },
+                "state": "offered",
+                "revision": 1,
+                "expectation_version": 1,
+                "expectations": [
+                  {
+                    "version": 1,
+                    "goal": "Review",
+                    "expected_result": "Review notes",
+                    "changed_by": {
+                      "kind": "human",
+                      "id": "owner"
+                    },
+                    "reason": "Initial expectation"
+                  }
+                ],
+                "generation": 0,
+                "current_assignment_id": null,
+                "current_run_id": null,
+                "pending_submission_id": null,
+                "relations": []
+              },
+              "records": []
+            }
+          },
+          {
+            "position": "opaque-position-2",
+            "recorded_at": "2026-10-31T01:00:00.000Z",
+            "source": "application",
+            "event": {
+              "event_id": "app-event-1",
+              "operation": "wake.request",
+              "entity_type": "wake",
+              "entity_id": "wake-1",
+              "revision": 1,
+              "actor": {
+                "kind": "human",
+                "id": "owner"
+              },
+              "after": {
+                "wake_id": "wake-1",
+                "revision": 1,
+                "task": {
+                  "authority_id": "personal",
+                  "task_id": "task-1"
+                },
+                "target": {
+                  "kind": "agent",
+                  "id": "agent-a"
+                },
+                "profile_id": "local-a",
+                "profile_revision": 1,
+                "runner_id": "runner-1",
+                "requested_by": {
+                  "kind": "human",
+                  "id": "owner"
+                },
+                "state": "queued",
+                "activation_id": null,
+                "outcome_evidence": null
+              },
+              "removed": false,
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              }
+            }
+          }
+        ],
+        "next_cursor": "next",
+        "follow_cursor": "follow-workspace-1",
+        "done": true
+      }
+    },
+    {
+      "id": "reject-log-source-mismatch",
+      "definition": "LogEntry",
+      "valid": false,
+      "value": {
+        "position": "opaque-position-1",
+        "recorded_at": "2026-10-31T01:00:00.000Z",
+        "source": "application",
+        "event": {
+          "protocol_version": "task-core-draft-1",
+          "event_id": "event-1",
+          "command_id": "task.create-1",
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "revision": 1,
+          "actor": {
+            "kind": "human",
+            "id": "owner"
+          },
+          "operation": "task.create",
+          "task_snapshot": {
+            "authority_id": "personal",
+            "task_id": "task-1",
+            "issuer": {
+              "kind": "human",
+              "id": "owner"
+            },
+            "state": "offered",
+            "revision": 1,
+            "expectation_version": 1,
+            "expectations": [
+              {
+                "version": 1,
+                "goal": "Review",
+                "expected_result": "Review notes",
+                "changed_by": {
+                  "kind": "human",
+                  "id": "owner"
+                },
+                "reason": "Initial expectation"
+              }
+            ],
+            "generation": 0,
+            "current_assignment_id": null,
+            "current_run_id": null,
+            "pending_submission_id": null,
+            "relations": []
+          },
+          "records": []
+        }
+      }
+    },
+    {
+      "id": "reject-taskless-wake-event",
+      "definition": "ApplicationEvent",
+      "valid": false,
+      "value": {
+        "event_id": "app-event-1",
+        "operation": "wake.request",
+        "entity_type": "wake",
+        "entity_id": "wake-1",
+        "revision": 1,
+        "actor": {
+          "kind": "human",
+          "id": "owner"
+        },
+        "after": {
+          "wake_id": "wake-1",
+          "revision": 1,
+          "task": {
+            "authority_id": "personal",
+            "task_id": "task-1"
+          },
+          "target": {
+            "kind": "agent",
+            "id": "agent-a"
+          },
+          "profile_id": "local-a",
+          "profile_revision": 1,
+          "runner_id": "runner-1",
+          "requested_by": {
+            "kind": "human",
+            "id": "owner"
+          },
+          "state": "queued",
+          "activation_id": null,
+          "outcome_evidence": null
+        },
+        "removed": false
+      }
+    },
+    {
+      "id": "reject-create-nonzero-revision",
+      "definition": "ActionRequest",
+      "valid": false,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "request_id": "project.create-1",
+        "operation": "project.create",
+        "expected_revision": 1,
+        "body": {
+          "project_id": "project-1",
+          "title": "Personal work",
+          "description": "Synthetic public fixture"
+        }
+      }
+    },
+    {
+      "id": "error-binding-INVALID_MESSAGE",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "INVALID_MESSAGE"
+        }
+      }
+    },
+    {
+      "id": "error-binding-UNSUPPORTED_BINDING",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "UNSUPPORTED_BINDING"
+        }
+      }
+    },
+    {
+      "id": "error-binding-UNSUPPORTED_OPERATION",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "UNSUPPORTED_OPERATION"
+        }
+      }
+    },
+    {
+      "id": "error-binding-UNAUTHENTICATED",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "UNAUTHENTICATED"
+        }
+      }
+    },
+    {
+      "id": "error-binding-FORBIDDEN",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "id": "error-binding-AUTHORITY_MISMATCH",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "AUTHORITY_MISMATCH"
+        }
+      }
+    },
+    {
+      "id": "error-binding-NOT_FOUND",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "id": "error-binding-ALREADY_EXISTS",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "ALREADY_EXISTS"
+        }
+      }
+    },
+    {
+      "id": "error-binding-STALE_REVISION",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "STALE_REVISION"
+        }
+      }
+    },
+    {
+      "id": "error-binding-INVALID_STATE",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "INVALID_STATE"
+        }
+      }
+    },
+    {
+      "id": "error-binding-IDEMPOTENCY_CONFLICT",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "IDEMPOTENCY_CONFLICT"
+        }
+      }
+    },
+    {
+      "id": "error-binding-SESSION_PROOF_REQUIRED",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "SESSION_PROOF_REQUIRED"
+        }
+      }
+    },
+    {
+      "id": "error-binding-SESSION_ENDED",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "SESSION_ENDED"
+        }
+      }
+    },
+    {
+      "id": "error-binding-SESSION_BUSY",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "SESSION_BUSY"
+        }
+      }
+    },
+    {
+      "id": "error-binding-SESSION_MISMATCH",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "SESSION_MISMATCH"
+        }
+      }
+    },
+    {
+      "id": "error-binding-PROFILE_UNAVAILABLE",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "PROFILE_UNAVAILABLE"
+        }
+      }
+    },
+    {
+      "id": "error-binding-WAKE_IN_PROGRESS",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "WAKE_IN_PROGRESS"
+        }
+      }
+    },
+    {
+      "id": "error-binding-INVALID_CURSOR",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "INVALID_CURSOR"
+        }
+      }
+    },
+    {
+      "id": "error-binding-CURSOR_RESET_REQUIRED",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "CURSOR_RESET_REQUIRED"
+        }
+      }
+    },
+    {
+      "id": "error-binding-CAPACITY_LIMIT",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "CAPACITY_LIMIT"
+        }
+      }
+    },
+    {
+      "id": "error-binding-OVERLOADED",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "OVERLOADED"
+        }
+      }
+    },
+    {
+      "id": "error-binding-INTERNAL_ERROR",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "binding",
+          "code": "INTERNAL_ERROR"
+        }
+      }
+    },
+    {
+      "id": "error-core-INVALID_MESSAGE",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "INVALID_MESSAGE"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-UNSUPPORTED_VERSION",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "UNSUPPORTED_VERSION"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-UNSUPPORTED_OPERATION",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "UNSUPPORTED_OPERATION"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-NOT_ADMITTED",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "NOT_ADMITTED"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-TASK_EXISTS",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "TASK_EXISTS"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-TASK_NOT_FOUND",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "TASK_NOT_FOUND"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-STALE_REVISION",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "STALE_REVISION"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-STALE_ASSIGNMENT",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "STALE_ASSIGNMENT"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-ROLE_MISMATCH",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "ROLE_MISMATCH"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-INVALID_STATE",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "INVALID_STATE"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-INVALID_BASIS",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "INVALID_BASIS"
+          }
+        }
+      }
+    },
+    {
+      "id": "error-core-IDEMPOTENCY_CONFLICT",
+      "definition": "ErrorResponse",
+      "valid": true,
+      "value": {
+        "binding_version": "ledger-http-draft-1",
+        "error": {
+          "scope": "core",
+          "error": {
+            "protocol_version": "task-core-draft-1",
+            "kind": "IDEMPOTENCY_CONFLICT"
+          }
+        }
+      }
+    },
+    {
+      "id": "skill-config",
+      "definition": "SkillConfig",
+      "valid": true,
+      "value": {
+        "config_version": "ledger-skill-config-1",
+        "service_url": "http://127.0.0.1:8080",
+        "authority_id": "personal",
+        "binding_version": "ledger-http-draft-1",
+        "protocol_version": "task-core-draft-1",
+        "actor": {
+          "kind": "agent",
+          "id": "agent-a"
+        },
+        "credential_env": "LEDGER_AGENT_TOKEN",
+        "default_project_id": "project-1",
+        "intent_directory": "/var/lib/example-ledger/agent-a/intents"
+      }
+    },
+    {
+      "id": "runner-config",
+      "definition": "RunnerConfig",
+      "valid": true,
+      "value": {
+        "config_version": "ledger-runner-config-1",
+        "runner_id": "runner-1",
+        "service_url": "http://127.0.0.1:8080",
+        "authority_id": "personal",
+        "binding_version": "ledger-http-draft-1",
+        "credential_env": "LEDGER_RUNNER_TOKEN",
+        "state_directory": "/var/lib/example-ledger/runner-1",
+        "profiles": [
+          {
+            "profile_id": "local-a",
+            "revision": 1,
+            "target": {
+              "kind": "agent",
+              "id": "agent-a"
+            },
+            "runner_id": "runner-1",
+            "label": "Example local agent",
+            "enabled": true,
+            "executable": "/opt/example-agent/bin/agent",
+            "arguments": [
+              {
+                "literal": "--task-id"
+              },
+              {
+                "field": "task_id"
+              },
+              {
+                "literal": "--authority"
+              },
+              {
+                "field": "authority_id"
+              }
+            ],
+            "working_directory": "/var/lib/example-ledger/work",
+            "environment_refs": {
+              "LEDGER_AGENT_TOKEN": "REGISTERED_AGENT_A_TOKEN"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "reject-prompt-shell-field",
+      "definition": "RunnerConfig",
+      "valid": false,
+      "value": {
+        "config_version": "ledger-runner-config-1",
+        "runner_id": "runner-1",
+        "service_url": "http://127.0.0.1:8080",
+        "authority_id": "personal",
+        "binding_version": "ledger-http-draft-1",
+        "credential_env": "LEDGER_RUNNER_TOKEN",
+        "state_directory": "/var/lib/example-ledger/runner-1",
+        "profiles": [
+          {
+            "profile_id": "local-a",
+            "revision": 1,
+            "target": {
+              "kind": "agent",
+              "id": "agent-a"
+            },
+            "runner_id": "runner-1",
+            "label": "Example local agent",
+            "enabled": true,
+            "executable": "/opt/example-agent/bin/agent",
+            "arguments": [
+              {
+                "literal": "--task-id"
+              },
+              {
+                "field": "task_id"
+              },
+              {
+                "literal": "--authority"
+              },
+              {
+                "field": "authority_id"
+              },
+              {
+                "field": "task_prompt"
+              }
+            ],
+            "working_directory": "/var/lib/example-ledger/work",
+            "environment_refs": {
+              "LEDGER_AGENT_TOKEN": "REGISTERED_AGENT_A_TOKEN"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "S01",
+      "scope": "core+binding",
+      "description": "Precondition: actor owner creates in existing project with valid target/profile; fresh IDs.",
+      "steps": [
+        {
+          "request_definition": "CommandRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "command": {
+              "protocol_version": "task-core-draft-1",
+              "command_id": "task.create-1",
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "expected_revision": 0,
+              "operation": "task.create",
+              "body": {
+                "goal": "Review",
+                "expected_result": "Review notes"
+              }
+            },
+            "application": {
+              "project_id": "project-1",
+              "claim_policy": {
+                "mode": "target",
+                "target": {
+                  "kind": "agent",
+                  "id": "agent-a"
+                }
+              },
+              "wake": {
+                "profile_id": "local-a",
+                "profile_revision": 1
+              }
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "Exactly one Task, policy, Wake, core event and receipt commit together; no spawn in transaction."
+      ]
+    },
+    {
+      "id": "S02",
+      "scope": "binding",
+      "description": "Precondition: profile revision unavailable, all other create guards pass.",
+      "steps": [
+        {
+          "request_definition": "CommandRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "command": {
+              "protocol_version": "task-core-draft-1",
+              "command_id": "task.create-1",
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "expected_revision": 0,
+              "operation": "task.create",
+              "body": {
+                "goal": "Review",
+                "expected_result": "Review notes"
+              }
+            },
+            "application": {
+              "project_id": "project-1",
+              "claim_policy": {
+                "mode": "target",
+                "target": {
+                  "kind": "agent",
+                  "id": "agent-a"
+                }
+              },
+              "wake": {
+                "profile_id": "local-a",
+                "profile_revision": 1
+              }
+            }
+          },
+          "expected": {
+            "http_status": 409,
+            "error_scope": "binding",
+            "error_code": "PROFILE_UNAVAILABLE"
+          }
+        }
+      ],
+      "invariants": [
+        "No Task, policy, Wake, event or successful receipt remains."
+      ]
+    },
+    {
+      "id": "S03",
+      "scope": "idempotency",
+      "description": "Precondition: original create succeeded and current principal has read permission.",
+      "steps": [
+        {
+          "request_definition": "CommandRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "command": {
+              "protocol_version": "task-core-draft-1",
+              "command_id": "task.create-1",
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "expected_revision": 0,
+              "operation": "task.create",
+              "body": {
+                "goal": "Review",
+                "expected_result": "Review notes"
+              }
+            },
+            "application": {
+              "project_id": "project-1",
+              "claim_policy": {
+                "mode": "target",
+                "target": {
+                  "kind": "agent",
+                  "id": "agent-a"
+                }
+              },
+              "wake": {
+                "profile_id": "local-a",
+                "profile_revision": 1
+              }
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        },
+        {
+          "request_definition": "CommandRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "command": {
+              "protocol_version": "task-core-draft-1",
+              "command_id": "task.create-1",
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "expected_revision": 0,
+              "operation": "task.create",
+              "body": {
+                "goal": "Review",
+                "expected_result": "Review notes"
+              }
+            },
+            "application": {
+              "project_id": "project-1",
+              "claim_policy": {
+                "mode": "target",
+                "target": {
+                  "kind": "agent",
+                  "id": "agent-a"
+                }
+              }
+            }
+          },
+          "expected": {
+            "http_status": 409,
+            "error_scope": "binding",
+            "error_code": "IDEMPOTENCY_CONFLICT"
+          }
+        }
+      ],
+      "invariants": [
+        "Replay returns original result with replayed=true; changing application does not create a second task or wake."
+      ]
+    },
+    {
+      "id": "S04",
+      "scope": "session",
+      "description": "Precondition: current claimed task revision2; caller is assignee but lacks valid current session proof.",
+      "steps": [
+        {
+          "request_definition": "CommandRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "command": {
+              "protocol_version": "task-core-draft-1",
+              "command_id": "run.start-1",
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "expected_revision": 2,
+              "operation": "run.start",
+              "body": {
+                "assignment_id": "assignment-1",
+                "generation": 1,
+                "basis_version": 1
+              }
+            },
+            "application": {}
+          },
+          "expected": {
+            "http_status": 403,
+            "error_scope": "binding",
+            "error_code": "SESSION_PROOF_REQUIRED"
+          }
+        }
+      ],
+      "invariants": [
+        "No Run, core event or revision is committed by rejected binding validation."
+      ]
+    },
+    {
+      "id": "S05",
+      "scope": "session",
+      "description": "Precondition: session active at revision1, valid old proof; rotate then retry exact request with read credential and old proof.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "session.rotate-1",
+            "operation": "session.rotate",
+            "expected_revision": 1,
+            "body": {
+              "session_id": "session-1",
+              "proof_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        },
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "session.rotate-1",
+            "operation": "session.rotate",
+            "expected_revision": 1,
+            "body": {
+              "session_id": "session-1",
+              "proof_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "proof_epoch advances once; replay is public historical result only; old proof rejects new writes."
+      ]
+    },
+    {
+      "id": "S06",
+      "scope": "session",
+      "description": "Precondition: valid source proof+target proof, binding revision1 current, target same actor/project and unbound.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "session.transfer-1",
+            "operation": "session.transfer",
+            "expected_revision": 1,
+            "body": {
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "assignment_id": "assignment-1",
+              "generation": 1,
+              "target_session_id": "session-2",
+              "reason": "Continue in new session"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "Current binding moves once; old session new run writes rejected; core Run and Task revision unchanged."
+      ]
+    },
+    {
+      "id": "S07",
+      "scope": "session",
+      "description": "Precondition: session active, owns current assignment, valid proof at session revision1.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "session.end-1",
+            "operation": "session.end",
+            "expected_revision": 1,
+            "body": {
+              "session_id": "session-1",
+              "outcome": "done",
+              "summary": "Session ended"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "Session ended; Task/Assignment stay unchanged; new execution writes reject SESSION_ENDED until explicit transfer or release."
+      ]
+    },
+    {
+      "id": "S08",
+      "scope": "dispatch",
+      "description": "Precondition: queued wake matches runner and target; reserve then task cancelled before authorize.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "dispatch.reserve-1",
+            "operation": "dispatch.reserve",
+            "expected_revision": 1,
+            "body": {
+              "wake_id": "wake-1"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        },
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "dispatch.authorize-1",
+            "operation": "dispatch.authorize",
+            "expected_revision": 2,
+            "body": {
+              "wake_id": "wake-1",
+              "activation_id": "activation-1"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "Authorize returns skipped; no spawn permission or task mutation."
+      ]
+    },
+    {
+      "id": "S09",
+      "scope": "dispatch",
+      "description": "Precondition: authorized wake revision3; local attempted marker durable but spawn outcome unknown.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "dispatch.report-1",
+            "operation": "dispatch.report",
+            "expected_revision": 3,
+            "body": {
+              "wake_id": "wake-1",
+              "activation_id": "activation-1",
+              "outcome": "unknown",
+              "evidence": "Local attempted marker exists; process outcome unknown"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "Wake unknown; no automatic re-dispatch; unresolved slot remains occupied; Task independent."
+      ]
+    },
+    {
+      "id": "S10",
+      "scope": "dispatch",
+      "description": "Precondition: wake unknown rev4; operator has isolated runner and audited durable no-start evidence.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "dispatch.resolve-1",
+            "operation": "dispatch.resolve",
+            "expected_revision": 4,
+            "body": {
+              "wake_id": "wake-1",
+              "outcome": "not_started",
+              "evidence": "Runner isolated; persistent journal confirms no exec"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "Wake failed rev5; any stale late report conflicts; retry requires distinct explicit wake intent."
+      ]
+    },
+    {
+      "id": "S11",
+      "scope": "reads",
+      "description": "Precondition: caller has read and snapshot fits limits; concurrent task change follows snapshot transaction.",
+      "steps": [
+        {
+          "request_definition": "QueryRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "operation": "workspace.snapshot",
+            "body": {}
+          },
+          "expected": {
+            "http_status": 200
+          }
+        },
+        {
+          "request_definition": "QueryRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "operation": "events.read",
+            "body": {
+              "cursor": "batch-start",
+              "limit": 200
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "Use returned event_cursor in real test (fixture cursor is symbolic); snapshot and following events have no lost commit; dedup handles follow replay."
+      ]
+    },
+    {
+      "id": "S12",
+      "scope": "reads",
+      "description": "Precondition: cursor signed under prior log incarnation after backup restoration.",
+      "steps": [
+        {
+          "request_definition": "QueryRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "operation": "events.read",
+            "body": {
+              "cursor": "batch-start",
+              "limit": 200
+            }
+          },
+          "expected": {
+            "http_status": 409,
+            "error_scope": "binding",
+            "error_code": "CURSOR_RESET_REQUIRED"
+          }
+        }
+      ],
+      "invariants": [
+        "No fabricated new continuation; caller must take a new snapshot."
+      ]
+    },
+    {
+      "id": "S13",
+      "scope": "identity",
+      "description": "Precondition: current actor enabled but credential has no admin; body structurally valid.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "participant.update-1",
+            "operation": "participant.update",
+            "expected_revision": 1,
+            "body": {
+              "actor": {
+                "kind": "agent",
+                "id": "agent-a"
+              },
+              "display_name": "Agent A",
+              "state": "read_only",
+              "profile": {}
+            }
+          },
+          "expected": {
+            "http_status": 403,
+            "error_scope": "binding",
+            "error_code": "FORBIDDEN"
+          }
+        }
+      ],
+      "invariants": [
+        "No profile/state change; being task issuer does not confer registry administration."
+      ]
+    },
+    {
+      "id": "S14",
+      "scope": "core",
+      "description": "Precondition: submitted task at revision4; caller is assignee only, not issuer, no prior successful receipt.",
+      "steps": [
+        {
+          "request_definition": "CommandRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "command": {
+              "protocol_version": "task-core-draft-1",
+              "command_id": "task.decide-1",
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "expected_revision": 4,
+              "operation": "task.decide",
+              "body": {
+                "submission_id": "submission-1",
+                "outcome": "accepted",
+                "reason": "Meets expected result"
+              }
+            },
+            "application": {}
+          },
+          "expected": {
+            "http_status": 403,
+            "error_scope": "core",
+            "error_code": "ROLE_MISMATCH"
+          }
+        }
+      ],
+      "invariants": [
+        "Submission remains pending; human/admin status cannot substitute for issuer."
+      ]
+    },
+    {
+      "id": "S15",
+      "scope": "policy",
+      "description": "Precondition: policy rev1 and task rev1 both offered, issuer valid; claim races after policy commit.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "claim_policy.update-1",
+            "operation": "claim_policy.update",
+            "expected_revision": 1,
+            "body": {
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "expected_task_revision": 1,
+              "claim_policy": {
+                "mode": "workspace"
+              }
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "Claim observes atomic updated policy; unchanged core revision alone cannot bypass policy; exactly one claimant may commit."
+      ]
+    },
+    {
+      "id": "S16",
+      "scope": "capacity",
+      "description": "Precondition: workspace contains more than1000 tasks or response exceeds16MiB.",
+      "steps": [
+        {
+          "request_definition": "QueryRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "operation": "workspace.snapshot",
+            "body": {}
+          },
+          "expected": {
+            "http_status": 507,
+            "error_scope": "binding",
+            "error_code": "CAPACITY_LIMIT"
+          }
+        }
+      ],
+      "invariants": [
+        "No partial snapshot or misleading continuation watermark."
+      ]
+    },
+    {
+      "id": "S17",
+      "scope": "dispatch",
+      "description": "Precondition: wake reserved at revision2 with valid target/profile; after this authorize commits, operator revokes profile before external spawn.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "dispatch.authorize-1",
+            "operation": "dispatch.authorize",
+            "expected_revision": 2,
+            "body": {
+              "wake_id": "wake-1",
+              "activation_id": "activation-1"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "A process may still start after authorize; target must revalidate claim; cancellation is not physical stop."
+      ]
+    },
+    {
+      "id": "S18",
+      "scope": "skill",
+      "description": "Precondition: session begin succeeds, create response lost, claim not yet attempted; durable intent retains original IDs.",
+      "steps": [
+        {
+          "request_definition": "ActionRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "request_id": "session.begin-1",
+            "operation": "session.begin",
+            "expected_revision": 0,
+            "body": {
+              "session_id": "session-1",
+              "project_id": "project-1",
+              "goal": "Review result",
+              "proof_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        },
+        {
+          "request_definition": "CommandRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "command": {
+              "protocol_version": "task-core-draft-1",
+              "command_id": "task.create-1",
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "expected_revision": 0,
+              "operation": "task.create",
+              "body": {
+                "goal": "Review",
+                "expected_result": "Review notes"
+              }
+            },
+            "application": {
+              "project_id": "project-1",
+              "claim_policy": {
+                "mode": "target",
+                "target": {
+                  "kind": "agent",
+                  "id": "agent-a"
+                }
+              },
+              "wake": {
+                "profile_id": "local-a",
+                "profile_revision": 1
+              }
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        },
+        {
+          "request_definition": "CommandRequest",
+          "request": {
+            "binding_version": "ledger-http-draft-1",
+            "command": {
+              "protocol_version": "task-core-draft-1",
+              "command_id": "task.create-1",
+              "task": {
+                "authority_id": "personal",
+                "task_id": "task-1"
+              },
+              "expected_revision": 0,
+              "operation": "task.create",
+              "body": {
+                "goal": "Review",
+                "expected_result": "Review notes"
+              }
+            },
+            "application": {
+              "project_id": "project-1",
+              "claim_policy": {
+                "mode": "target",
+                "target": {
+                  "kind": "agent",
+                  "id": "agent-a"
+                }
+              },
+              "wake": {
+                "profile_id": "local-a",
+                "profile_revision": 1
+              }
+            }
+          },
+          "expected": {
+            "http_status": 200
+          }
+        }
+      ],
+      "invariants": [
+        "Recover same successful create receipt; no new Task or session; resume next uncompleted operation only after current facts are checked."
+      ]
+    }
+  ]
+}

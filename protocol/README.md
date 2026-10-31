@@ -1,6 +1,6 @@
 # 采用 task-core-draft-1
 
-本项目基于 [Agent↔Task Bridge](https://github.com/Csneer/agent-task-bridge) 的实验任务协议，计划实现独立的 Go authority，以真实应用验证其可用性。当前仅锁定规格，没有 Go 状态机、服务或符合性结果。
+本项目基于 [Agent↔Task Bridge](https://github.com/Csneer/agent-task-bridge) 的实验任务协议，计划实现独立的 Go authority，以真实应用验证其可用性。当前已锁定上游规格并建立本地 S1 binding 契约，没有 Go 状态机、服务或运行符合性结果。
 
 | 输入 | 固定值 |
 |---|---|
@@ -33,6 +33,6 @@
 
 当前协议没有部署中的新版本服务，也没有本项目可以直接复用的新版本 Go SDK。已发布 M1 的 HTTP 服务、Bearer/租约逻辑及客户端不兼容本草案；本项目不会透传到 M1 后声称采用了新核心。
 
-拟议的 HTTP、身份、查询、cursor 和应用策略在[本项目绑定草案](../docs/binding.md)单独定义；它们不是上游已经承诺的能力。未来可把通用需求形成提案，回馈上游，但不能私自修改核心含义。
+HTTP、身份、查询、cursor 和应用策略在[本项目 S1 绑定基线](../docs/binding.md)单独定义；它们不是上游已经承诺的能力。未来可把通用需求形成提案，回馈上游，但不能私自修改核心含义。
 
 升级时按[升级记录](UPGRADES.md)记录新提交、字段/语义变化、持久数据与客户端影响、回归证据；更换本地文件和摘要必须是显式升级。模型对照、独立客户端互操作与压力验证的证据范围见[验证计划](../docs/validation.md)。

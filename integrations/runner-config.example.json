@@ -1,0 +1,41 @@
+{
+  "config_version": "ledger-runner-config-1",
+  "runner_id": "runner-1",
+  "service_url": "http://127.0.0.1:8080",
+  "authority_id": "personal",
+  "binding_version": "ledger-http-draft-1",
+  "credential_env": "LEDGER_RUNNER_TOKEN",
+  "state_directory": "/var/lib/example-ledger/runner-1",
+  "profiles": [
+    {
+      "profile_id": "local-a",
+      "revision": 1,
+      "target": {
+        "kind": "agent",
+        "id": "agent-a"
+      },
+      "runner_id": "runner-1",
+      "label": "Example local agent",
+      "enabled": true,
+      "executable": "/opt/example-agent/bin/agent",
+      "arguments": [
+        {
+          "literal": "--task-id"
+        },
+        {
+          "field": "task_id"
+        },
+        {
+          "literal": "--authority"
+        },
+        {
+          "field": "authority_id"
+        }
+      ],
+      "working_directory": "/var/lib/example-ledger/work",
+      "environment_refs": {
+        "LEDGER_AGENT_TOKEN": "REGISTERED_AGENT_A_TOKEN"
+      }
+    }
+  ]
+}

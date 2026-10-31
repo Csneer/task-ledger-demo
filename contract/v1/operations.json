@@ -1,0 +1,254 @@
+[
+  {
+    "operation": "task.create",
+    "route": "/v1/commands",
+    "request": "Command_task_create",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "task.revise",
+    "route": "/v1/commands",
+    "request": "Command_task_revise",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "task.claim",
+    "route": "/v1/commands",
+    "request": "Command_task_claim",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "run.start",
+    "route": "/v1/commands",
+    "request": "Command_run_start",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "run.report",
+    "route": "/v1/commands",
+    "request": "Command_run_report",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "run.submit",
+    "route": "/v1/commands",
+    "request": "Command_run_submit",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "run.fail",
+    "route": "/v1/commands",
+    "request": "Command_run_fail",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "task.decide",
+    "route": "/v1/commands",
+    "request": "Command_task_decide",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "assignment.release",
+    "route": "/v1/commands",
+    "request": "Command_assignment_release",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "task.reopen",
+    "route": "/v1/commands",
+    "request": "Command_task_reopen",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "task.cancel",
+    "route": "/v1/commands",
+    "request": "Command_task_cancel",
+    "response": "CommandSuccess",
+    "authorization": "upstream role and host admission"
+  },
+  {
+    "operation": "participant.create",
+    "route": "/v1/actions",
+    "request": "Action_participant_create",
+    "response": "Result_participant_create",
+    "authorization": "admin"
+  },
+  {
+    "operation": "participant.update",
+    "route": "/v1/actions",
+    "request": "Action_participant_update",
+    "response": "Result_participant_update",
+    "authorization": "admin"
+  },
+  {
+    "operation": "project.create",
+    "route": "/v1/actions",
+    "request": "Action_project_create",
+    "response": "Result_project_create",
+    "authorization": "writer"
+  },
+  {
+    "operation": "project.update",
+    "route": "/v1/actions",
+    "request": "Action_project_update",
+    "response": "Result_project_update",
+    "authorization": "creator or admin"
+  },
+  {
+    "operation": "handoff.put",
+    "route": "/v1/actions",
+    "request": "Action_handoff_put",
+    "response": "Result_handoff_put",
+    "authorization": "writer"
+  },
+  {
+    "operation": "claim_policy.update",
+    "route": "/v1/actions",
+    "request": "Action_claim_policy_update",
+    "response": "Result_claim_policy_update",
+    "authorization": "issuer"
+  },
+  {
+    "operation": "session.begin",
+    "route": "/v1/actions",
+    "request": "Action_session_begin",
+    "response": "Result_session_begin",
+    "authorization": "writer"
+  },
+  {
+    "operation": "session.update",
+    "route": "/v1/actions",
+    "request": "Action_session_update",
+    "response": "Result_session_update",
+    "authorization": "session owner + proof"
+  },
+  {
+    "operation": "session.rotate",
+    "route": "/v1/actions",
+    "request": "Action_session_rotate",
+    "response": "Result_session_rotate",
+    "authorization": "session owner + old proof"
+  },
+  {
+    "operation": "session.end",
+    "route": "/v1/actions",
+    "request": "Action_session_end",
+    "response": "Result_session_end",
+    "authorization": "session owner + proof"
+  },
+  {
+    "operation": "session.transfer",
+    "route": "/v1/actions",
+    "request": "Action_session_transfer",
+    "response": "Result_session_transfer",
+    "authorization": "same actor + both session proofs"
+  },
+  {
+    "operation": "wake.request",
+    "route": "/v1/actions",
+    "request": "Action_wake_request",
+    "response": "Result_wake_request",
+    "authorization": "issuer"
+  },
+  {
+    "operation": "dispatch.reserve",
+    "route": "/v1/actions",
+    "request": "Action_dispatch_reserve",
+    "response": "Result_dispatch_reserve",
+    "authorization": "matching runner"
+  },
+  {
+    "operation": "dispatch.authorize",
+    "route": "/v1/actions",
+    "request": "Action_dispatch_authorize",
+    "response": "Result_dispatch_authorize",
+    "authorization": "reserved runner"
+  },
+  {
+    "operation": "dispatch.report",
+    "route": "/v1/actions",
+    "request": "Action_dispatch_report",
+    "response": "Result_dispatch_report",
+    "authorization": "reserved runner"
+  },
+  {
+    "operation": "dispatch.resolve",
+    "route": "/v1/actions",
+    "request": "Action_dispatch_resolve",
+    "response": "Result_dispatch_resolve",
+    "authorization": "admin + runner quiesced"
+  },
+  {
+    "operation": "service.info",
+    "route": "/v1/queries",
+    "request": "Query_service_info",
+    "response": "View_service_info",
+    "authorization": "reader"
+  },
+  {
+    "operation": "task.snapshot",
+    "route": "/v1/queries",
+    "request": "Query_task_snapshot",
+    "response": "View_task_snapshot",
+    "authorization": "reader"
+  },
+  {
+    "operation": "workspace.snapshot",
+    "route": "/v1/queries",
+    "request": "Query_workspace_snapshot",
+    "response": "View_workspace_snapshot",
+    "authorization": "reader"
+  },
+  {
+    "operation": "events.open",
+    "route": "/v1/queries",
+    "request": "Query_events_open",
+    "response": "View_events_open",
+    "authorization": "reader"
+  },
+  {
+    "operation": "events.read",
+    "route": "/v1/queries",
+    "request": "Query_events_read",
+    "response": "View_events_read",
+    "authorization": "reader"
+  },
+  {
+    "operation": "session.get",
+    "route": "/v1/queries",
+    "request": "Query_session_get",
+    "response": "View_session_get",
+    "authorization": "reader"
+  },
+  {
+    "operation": "wake.get",
+    "route": "/v1/queries",
+    "request": "Query_wake_get",
+    "response": "View_wake_get",
+    "authorization": "reader or matching runner"
+  },
+  {
+    "operation": "profiles.list",
+    "route": "/v1/queries",
+    "request": "Query_profiles_list",
+    "response": "View_profiles_list",
+    "authorization": "reader"
+  },
+  {
+    "operation": "dispatch.pending",
+    "route": "/v1/queries",
+    "request": "Query_dispatch_pending",
+    "response": "View_dispatch_pending",
+    "authorization": "runner"
+  }
+]

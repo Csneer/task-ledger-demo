@@ -6,4 +6,4 @@
 
 skill 通过公开接口操作，不直读数据库，不自报授权，不采集完整会话；配置使用凭据引用而非把秘密写入 skill。会话记录、任务执行和验收分别处理。协议版本不兼容或结果未知时保留真实状态，不伪报完成。
 
-实现输入是 [Agent 接入设计](../../docs/agent-integration.md)及已固定的 binding；完成 S1 契约后再编写实际 `SKILL.md` 和薄客户端。
+实现输入是 [Agent 接入设计](../../docs/agent-integration.md)及已固定的 binding；S1 已固定 [binding](../../docs/binding.md)与机器配置；S3 在真实服务基础上编写实际 `SKILL.md` 和薄客户端，避免把静态样例当作可调用服务。

@@ -1,0 +1,14 @@
+{
+  "config_version": "ledger-skill-config-1",
+  "service_url": "http://127.0.0.1:8080",
+  "authority_id": "personal",
+  "binding_version": "ledger-http-draft-1",
+  "protocol_version": "task-core-draft-1",
+  "actor": {
+    "kind": "agent",
+    "id": "agent-a"
+  },
+  "credential_env": "LEDGER_AGENT_TOKEN",
+  "default_project_id": "project-1",
+  "intent_directory": "/var/lib/example-ledger/agent-a/intents"
+}

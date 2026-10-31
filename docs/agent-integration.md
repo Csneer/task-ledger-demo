@@ -1,6 +1,6 @@
 # Agent skill、实施登记与可选唤起
 
-状态：骨架设计，所有接口与执行流程待实现。本文定义接入职责，不提供可运行命令。[Skill 目录](../skills/task-ledger/README.md)与[适配目录](../integrations/README.md)仅作预留。
+状态：S1 接入设计，接口规范已在 [binding 基线](binding.md)及专题契约固定，执行流程待实现。本文定义接入职责，不提供可运行命令。[Skill 目录](../skills/task-ledger/README.md)与[适配目录](../integrations/README.md)仅作预留。
 
 ## Skill 是日常接入入口
 
@@ -15,7 +15,7 @@ Agent 宿主加载 skill 后，通过薄客户端访问服务。skill 引导何�
 | 默认 Project、工作空间引用 | 帮助归属与接续；本机目录/会话原文不默认上传 |
 | 可选 LaunchProfile 引用 | 指向管理者登记的唤起配置；Agent 自报配置不能立即变成可执行命令 |
 
-skill 的预期动作包括：身份核对/登记、读取项目摘要、实施登记与更新、发现/领取任务、正式交付与验收、委派任务、可选唤起和结果核对、汇总与接续。客户端工具的名字、HTTP 路径和配置格式在 S1 固定，当前没有安装脚本。
+skill 的预期动作包括：身份核对/登记、读取项目摘要、实施登记与更新、发现/领取任务、正式交付与验收、委派任务、可选唤起和结果核对、汇总与接续。HTTP 路径和 [skill 配置样例](../integrations/skill-config.example.json)已在 S1 固定；配置结构可校验，当前没有可调用客户端或安装脚本。
 
 ## ActivitySession 与协议执行分开
 
@@ -71,9 +71,9 @@ sequenceDiagram
 
 外部进程启动必须位于持久事务之外。Task、ClaimPolicy 和可选 WakeRequest 可在一笔创建事务中提交，launcher 只能读取已提交的请求；回滚数据库不能撤销已发生的外部启动。
 
-WakeRequest 记录意图、TaskRef、目标 ActorRef、固定 LaunchProfile revision、请求者与幂等键；WakeAttempt 记录一次投递/启动的结果和可核对的 activation ID。拟议状态包括 queued、started、failed、unknown、skipped；状态描述启动事实，不承诺已领取或开始工作。实际状态表在 binding 阶段固定。
+WakeRequest 记录意图、TaskRef、目标 ActorRef、固定 LaunchProfile revision、请求者与幂等键；WakeAttempt 记录一次投递/启动的结果和可核对的 activation ID。拟议状态包括 queued、started、failed、unknown、skipped；状态描述启动事实，不承诺已领取或开始工作。状态表见[读取唤起契约](contracts/reads-dispatch.md)，包含 reserved/authorized 等中间状态。
 
-任务创建重试不能重复创建 WakeRequest，target/profile/wake 选项纳入完整应用请求的等价判断。之后再次唤起属于新的显式应用意图，有自己的幂等键和限流。缺少可用配置时应明确拒绝唤起选项或报告无法唤起；具体原子拒绝/仅建任务策略在 S1 统一，不得悄悄执行任意默认命令。
+任务创建重试不能重复创建 WakeRequest，target/profile/wake 选项纳入完整应用请求的等价判断。之后再次唤起属于新的显式应用意图，有自己的幂等键和限流。缺少可用配置时，带 wake 的创建整笔拒绝；调用者可明确发出不带 wake 的新意图，不得悄悄执行默认命令或降级为仅建任务。
 
 ## 唤起配置与失效核对
 
@@ -81,10 +81,10 @@ LaunchProfile 由管理者登记/批准，使用固定 executable 与 argv 模�
 
 投递前重新检查目标身份、profile 是否仍启用、任务当前状态和领取策略。引用的旧 profile 版本已撤销时跳过并留痕，不悄悄套用新版本命令。目标已领取、任务取消、身份停用或资格变更时，标记失效的唤起请求，而不改 Task 生命周期。
 
-启动后响应丢失时，先按 activation ID 核对 launcher 与会话登记；能确认未启动才自动重试，不能确认则保留 unknown。如果未来采用至少一次唤起，必须接受可能的重复进程并有独立抑制机制，不能承诺外部启动或业务副作用 exactly-once。
+启动后响应丢失时，先按 activation ID 核对 launcher 的持久日志与实际启动证据；不能确认则保留 unknown。每个 wake 只有一次 activation，不自动再次 spawn；确认未启动后以明确的新 wake 意图重试。如果未来采用至少一次唤起，必须接受可能的重复进程并有独立抑制机制，不能承诺外部启动或业务副作用 exactly-once。
 
 同一个 Agent 可以被重复启动，核心单承接只约束 ActorRef，不能区分两个同身份进程。宿主的执行会话绑定防止新进程借用旧会话的 Run；这不保证旧进程的外部动作立即停止。取消/撤销/接管后对外部资源的停止或隔离，需要另有可观察机制和验证。
 
-## 本轮范围与待固定事项
+## 实施输入与验证边界
 
-本轮只有设计、目录与验证场景，不提供 skill、launcher 或进程控制实现。S1 需明确注册审批、会话恢复凭据、claim 与会话绑定事务、执行接管、wake 状态/重试、配置缺失处理、启动并发限制和凭据传递方式。相关故障与压力场景见[验证计划](validation.md)。
+本轮只有设计、目录与验证场景，不提供 skill、launcher 或进程控制实现。S1 已固定注册管理、会话 proof/轮换/交接、claim 绑定、wake 状态和单次 activation、缺配置原子拒绝与每 runner 一个未决启动；精确规则见[身份会话契约](contracts/identity-session.md)和[读取唤起契约](contracts/reads-dispatch.md)。相关故障与压力场景见[验证计划](validation.md)。

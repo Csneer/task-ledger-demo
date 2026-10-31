@@ -1,0 +1,20 @@
+[
+  {
+    "method": "POST",
+    "path": "/v1/commands",
+    "request": "CommandRequest",
+    "response": "CommandResponse"
+  },
+  {
+    "method": "POST",
+    "path": "/v1/actions",
+    "request": "ActionRequest",
+    "response": "ActionResponse"
+  },
+  {
+    "method": "POST",
+    "path": "/v1/queries",
+    "request": "QueryRequest",
+    "response": "QueryResponse"
+  }
+]

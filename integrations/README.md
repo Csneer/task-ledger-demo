@@ -1,6 +1,6 @@
 # Agent 配置与可选唤起适配
 
-这里预留 Agent 宿主接入资料，当前没有运行中的适配器。
+这里保存 Agent 宿主接入契约，当前没有运行中的适配器。[skill 配置](skill-config.example.json)与[runner 配置](runner-config.example.json)是合成结构样例，目录与可执行文件仅为占位，不提供启动命令。
 
 skill 客户端配置应包含：服务地址、预期协议/binding 版本、authority、注册回执中的稳定 ActorRef、凭据引用、默认项目引用，以及可选的 provider/模型/能力/工作空间资料。注册信息不是身份凭据；更换机器或模型不能自动产生新主体或接管同名主体。
 

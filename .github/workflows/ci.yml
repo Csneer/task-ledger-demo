@@ -1,4 +1,4 @@
-name: Skeleton checks
+name: Contract and skeleton checks
 
 on:
   push:
@@ -19,5 +19,5 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
-      - name: Format, pinned schema integrity, vet and package compilation only
+      - name: Static contract vectors, checker tests, format, vet and build (not runtime verification)
         run: make check
