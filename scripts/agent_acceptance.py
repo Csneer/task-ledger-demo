@@ -286,14 +286,31 @@ class Acceptance:
     def run_remote(self):
         # The wrapper keeps the raw Bearer in memory, creates only private client
         # state, and removes its own remote directory even on model failure.
-        wrapper = """import json,os,pathlib,shutil,subprocess,sys,tempfile,signal
+        wrapper = """import json,os,pathlib,shutil,subprocess,sys,tempfile,signal,time,urllib.request,urllib.error
 p=json.load(sys.stdin); d=pathlib.Path(tempfile.mkdtemp(prefix='task-ledger-client-')); os.chmod(d,0o700)
 child=None
+def interrupted(signum,frame): raise KeyboardInterrupt('remote acceptance interrupted')
+for sig in (signal.SIGTERM,signal.SIGHUP,signal.SIGINT): signal.signal(sig,interrupted)
 try:
  for name,value in p['files'].items():
   f=d/name; f.write_text(value); f.chmod(0o600)
+ cfg=json.loads(p['files']['client.json'])
+ request=urllib.request.Request(cfg['service_url']+'/v1/queries',json.dumps({'binding_version':'ledger-http-draft-1','operation':'service.info','body':{}}).encode(),{'Content-Type':'application/json','Authorization':'Bearer '+p['token']})
+ opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+ deadline=time.monotonic()+10
+ while True:
+  try:
+   with opener.open(request,timeout=2) as response: info=json.load(response)['result']
+   assert info['authority_id']=='acceptance' and info['protocol_version']=='task-core-draft-1'
+   break
+  except urllib.error.HTTPError: raise
+  except urllib.error.URLError:
+   if time.monotonic()>=deadline: raise
+   time.sleep(0.2)
+ print('REMOTE_HTTP_READY',flush=True)
  env=dict(os.environ,LEDGER_AUTH=p['token']); env['PATH']=p['bin_dir']+':'+env.get('PATH','')
  child=subprocess.Popen(p['argv'],cwd=d,env=env,stdin=subprocess.PIPE,start_new_session=True)
+ print('REMOTE_RESOURCE '+json.dumps({'directory':str(d),'pid':child.pid,'pgid':child.pid}),flush=True)
  try: child.communicate(p['prompt'].encode(),timeout=p['timeout'])
  except subprocess.TimeoutExpired:
   os.killpg(child.pid,signal.SIGTERM)
@@ -302,16 +319,20 @@ try:
   raise
  sys.exit(child.returncode)
 finally:
- if child is not None and child.poll() is None: os.killpg(child.pid,signal.SIGTERM); child.wait(timeout=10)
- shutil.rmtree(d)
- print('REMOTE_PRIVATE_DIRECTORY_REMOVED',flush=True)
+ try:
+  if child is not None and child.poll() is None:
+   os.killpg(child.pid,signal.SIGTERM)
+   try: child.wait(timeout=10)
+   except subprocess.TimeoutExpired: os.killpg(child.pid,signal.SIGKILL); child.wait(timeout=5)
+ finally:
+  shutil.rmtree(d)
+  print('REMOTE_PRIVATE_DIRECTORY_REMOVED',flush=True)
 """
         remote_port = self.args.remote_port
         tunnel_log = open(self.root / "ssh-tunnel.log", "wb")
         tunnel, resource = self.spawn(["ssh", "-oBatchMode=yes", "-oConnectTimeout=5", "-oExitOnForwardFailure=yes", "-oServerAliveInterval=15", "-N", "-R",
             f"127.0.0.1:{remote_port}:127.0.0.1:{self.port}", self.args.remote], "ssh-reverse-forward", stdout=tunnel_log, stderr=tunnel_log)
         try:
-            time.sleep(1)
             if tunnel.poll() is not None:
                 raise RuntimeError("SSH reverse forward failed")
             cfg = {"service_url": f"http://127.0.0.1:{remote_port}", "actor": {"kind": "agent", "id": "remote"}, "task_id": "child-remote", "children": self.children}
@@ -322,17 +343,27 @@ finally:
                        "bin_dir": str(Path(self.args.remote_codex).parent), "argv": argv, "timeout": self.args.agent_timeout}
             import shlex
             log = open(self.root / "remote.log", "wb")
+            begin = time.monotonic()
             p, proc = self.spawn(["ssh", "-oBatchMode=yes", "-oConnectTimeout=5", self.args.remote, "python3 -c " + shlex.quote(wrapper)], "remote-agent-ssh", stdin=subprocess.PIPE, stdout=log, stderr=log)
             try:
                 p.communicate(json.dumps(payload).encode(), timeout=self.args.agent_timeout + 30)
             finally:
                 self.stop(p, proc)
                 log.close()
-            cleaned = "REMOTE_PRIVATE_DIRECTORY_REMOVED" in (self.root / "remote.log").read_text(errors="replace")
-            self.results["agents"]["remote-work"] = {"exit_code": p.returncode, "remote_directory_removed": cleaned}
-            if p.returncode != 0 or not cleaned:
+            lines = (self.root / "remote.log").read_text(errors="replace").splitlines()
+            cleaned = "REMOTE_PRIVATE_DIRECTORY_REMOVED" in lines
+            ready = "REMOTE_HTTP_READY" in lines
+            remote_resources = [json.loads(line.removeprefix("REMOTE_RESOURCE ")) for line in lines if line.startswith("REMOTE_RESOURCE ")]
+            self.results["remote_resources"] = remote_resources
+            self.results["agents"]["remote-work"] = {"exit_code": p.returncode, "elapsed_seconds": round(time.monotonic() - begin, 3),
+                                                       "http_ready": ready, "remote_directory_removed": cleaned}
+            if p.returncode != 0 or not cleaned or not ready or len(remote_resources) != 1:
                 raise RuntimeError("remote CLI failed or cleanup unconfirmed; inspect private remote.log")
-            self.note("remote-work", cli_exit=0, remote_directory_removed=True)
+            snapshot = self.task("child-remote")
+            if snapshot["task"]["state"] != "submitted":
+                raise RuntimeError("remote CLI exited without submitted server fact")
+            self.results["remote_submission_snapshot"] = snapshot
+            self.note("remote-work", cli_exit=0, http_ready=True, server_fact_checked=True, remote_directory_removed=True)
         finally:
             self.stop(tunnel, resource)
             tunnel_log.close()
@@ -386,6 +417,8 @@ finally:
             assert parent["state"] == "submitted"
             for c in self.children:
                 assert self.task(c["task_id"])["task"]["state"] == "completed"
+            if self.args.remote:
+                self.results["remote_completed_snapshot"] = self.task("child-remote")
             self.command("human", "parent", "task.decide", parent["revision"], {"submission_id": parent["pending_submission_id"], "outcome": "accepted", "reason": "Synthetic human-role acceptance: all independently checked results match"})
             assert self.task("parent")["task"]["state"] == "completed"
             self.note("issuer-acceptance", children="completed", parent="completed", human_role="automated test actor, not live human review")

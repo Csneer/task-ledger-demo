@@ -1,0 +1,195 @@
+{
+  "status": "environment_blocked",
+  "harness_status": "failed",
+  "scope": "Remote Codex retry with local Codex, Pi and Claude against one isolated authority; no frontend or live human review",
+  "started_at": "2026-10-31T09:29:00Z",
+  "finished_at": "2026-10-31T09:32:30Z",
+  "source_commit": "0b96e7dd8d1dab2f0e0802e55c4a94989f7b9439",
+  "source_dirty": true,
+  "source_note": "Daemon built from clean source_commit before harness-only edits. No production Go source changes in this retry.",
+  "binary_sha256": "a4d75b3e0c37362908a40682892bd0e8201561268766790c8afa054a16359088",
+  "versions": {
+    "remote_codex": "0.164.0",
+    "protocol": "task-core-draft-1",
+    "binding": "ledger-http-draft-1"
+  },
+  "transport": "Loopback HTTP through encrypted SSH reverse forwarding",
+  "ssh": {
+    "connected": true,
+    "remote_forward_port_available_before_run": true
+  },
+  "remote_http": {
+    "authenticated_service_info": true,
+    "authority_checked": true,
+    "protocol_version_checked": true
+  },
+  "remote_model": {
+    "status": "blocked",
+    "failure": "Configured model responses endpoint returned HTTP 502 after five reconnects; final CLI exit 1",
+    "model": "gpt-6-astra",
+    "configuration_changed": false
+  },
+  "independent_model_probe": {
+    "exit_code": 1,
+    "elapsed_seconds": 40.467,
+    "ready_reply": false,
+    "model_502": true,
+    "error_count": 6,
+    "uses_task_service": false,
+    "tools_requested": false,
+    "temporary_directory_removed": true,
+    "conclusion": "The configured remote model request path fails independently of the task service; gateway/upstream root cause is not established"
+  },
+  "agents": {
+    "codex-delegate": {
+      "exit_code": 0,
+      "elapsed_seconds": 63.197
+    },
+    "pi-work": {
+      "exit_code": 0,
+      "elapsed_seconds": 41.499
+    },
+    "remote-work": {
+      "exit_code": 1,
+      "elapsed_seconds": 56.981,
+      "http_ready": true,
+      "remote_directory_removed": true
+    },
+    "claude-work": {
+      "exit_code": 0,
+      "elapsed_seconds": 146.523
+    }
+  },
+  "scenarios": [
+    {
+      "scenario": "http-concurrent-create-retry",
+      "clients": 6,
+      "fresh": 1,
+      "replayed": 5,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-concurrent-claim",
+      "statuses": [
+        200,
+        409
+      ],
+      "assignments": 1,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-proof-retry-and-old-assignment",
+      "missing_proof": 403,
+      "corrected_same_id": "fresh",
+      "stale_assignment": 409,
+      "unchanged_snapshot": true,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-wire-rejections",
+      "unauthenticated": 401,
+      "wrong_media_type": 415,
+      "duplicate_json_key": 400,
+      "evidence": "deterministic HTTP harness"
+    },
+    {
+      "scenario": "http-check-cleanup",
+      "status": "passed",
+      "tasks_cancelled": 2,
+      "sessions_ended": 2
+    },
+    {
+      "scenario": "readiness-and-bootstrap",
+      "authority": "acceptance",
+      "actors": [
+        "human",
+        "codex",
+        "pi",
+        "claude",
+        "remote"
+      ]
+    },
+    {
+      "scenario": "codex-delegate",
+      "cli_exit": 0,
+      "server_fact_checked": false
+    },
+    {
+      "scenario": "pi-work",
+      "cli_exit": 0,
+      "server_fact_checked": true
+    },
+    {
+      "scenario": "claude-work",
+      "cli_exit": 0,
+      "server_fact_checked": true
+    }
+  ],
+  "observed_tasks": [
+    {
+      "task_id": "child-claude",
+      "state": "submitted",
+      "revision": 5,
+      "records": 4
+    },
+    {
+      "task_id": "child-pi",
+      "state": "submitted",
+      "revision": 5,
+      "records": 4
+    },
+    {
+      "task_id": "child-remote",
+      "state": "offered",
+      "revision": 1,
+      "records": 0
+    },
+    {
+      "task_id": "negative-proof-d51fb8c96531",
+      "state": "cancelled",
+      "revision": 7,
+      "records": 3
+    },
+    {
+      "task_id": "negative-retry-d51fb8c96531",
+      "state": "cancelled",
+      "revision": 4,
+      "records": 1
+    },
+    {
+      "task_id": "parent",
+      "state": "active",
+      "revision": 4,
+      "records": 3
+    }
+  ],
+  "acceptance": {
+    "remote_claimed": false,
+    "remote_submitted": false,
+    "remote_decided": false,
+    "parent_aggregate_run": false,
+    "cross_host_task_interoperability_proven": false
+  },
+  "cleanup": {
+    "owned_local_processes_stopped": true,
+    "owned_local_processes_absent_on_recheck": true,
+    "service_port_released": true,
+    "temporary_data_removed": true,
+    "remote_directory_removed": true,
+    "remote_process_group_empty": true,
+    "remote_forward_port_released": true,
+    "remote_checks": "A separate bounded SSH call checked the exact recorded process group, directory and forwarded port"
+  },
+  "prior_evidence": {
+    "file": "s3-local-results.json",
+    "unchanged": true,
+    "note": "Earlier local success and SSH timeout remain historical observations; this retry does not overwrite them"
+  },
+  "not_proven": [
+    "Remote claim/delivery/issuer acceptance",
+    "Direct LAN HTTPS deployment",
+    "Cross-authority interoperability",
+    "Live human daily-use acceptance",
+    "Load or latency capacity"
+  ]
+}
