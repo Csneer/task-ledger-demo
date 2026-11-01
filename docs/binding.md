@@ -1,6 +1,6 @@
 # ledger-http-draft-1 接入契约
 
-状态：S1 实施基线，2026-10-31。这是本 demo 的 HTTP binding，不是上游新增的核心协议。S3 已实现 11 个核心操作、10 个应用动作和 7 个查询的 HTTP 入口；支持范围和验收证据见 [S3 验收记录](validation/s3-agent-acceptance.md)。前端仍待定。
+状态：S1 实施基线，2026-11-01 更新宿主前端接入说明。这是本 demo 的 HTTP binding，不是上游新增的核心协议。S3 已实现 11 个核心操作、10 个应用动作和 7 个查询的 HTTP 入口；支持范围和验收证据见 [S3 验收记录](validation/s3-agent-acceptance.md)。Task Orbit 前端已使用这些入口接入，并由 Go daemon 嵌入同源提供。
 
 本基线由[机器结构](../contract/v1/schema.json)、[路由映射](../contract/v1/routes.json)、[操作映射](../contract/v1/operations.json)、[错误映射](../contract/v1/errors.json)、本页及两份专题契约共同定义；发现冲突必须修订契约，不由实现私选其一。[结构向量与行为预期](../contract/v1/vectors.json)分开记录，行为预期本轮不执行。
 
@@ -12,7 +12,7 @@
 | POST /v1/actions | ActionRequest | 对应 Result_<operation> | 身份目录、项目、会话、定向与唤起操作 |
 | POST /v1/queries | QueryRequest | 对应 View_<operation> | 服务能力、快照、事件、会话与唤起查询 |
 
-operation 中的点在定义名中用下划线替代。所有响应使用 JSON，成功 HTTP 200，失败使用 ErrorResponse；没有 JSON-RPC batch/notification。仅接受 UTF-8 application/json，响应 Cache-Control: no-store。非 POST 返回405，未知路径404，错误媒体类型415，超大请求413；这些传输拒绝不产生业务回执。正文上限1 MiB，响应上限16 MiB；不可截断成功数据，超过容量用507/CAPACITY_LIMIT。
+operation 中的点在定义名中用下划线替代。上述三个入口的响应使用 JSON，成功 HTTP 200，失败使用 ErrorResponse；没有 JSON-RPC batch/notification。仅接受 UTF-8 application/json，响应 Cache-Control: no-store。这些入口的非 POST 请求返回405，未知 API 路径404，错误媒体类型415，超大请求413；这些传输拒绝不产生业务回执。正文上限1 MiB，响应上限16 MiB；不可截断成功数据，超过容量用507/CAPACITY_LIMIT。
 
 ```text
 command: {binding_version, command:<upstream Command>, application:{...}}
@@ -21,6 +21,18 @@ query:   {binding_version, operation, body}
 ```
 
 binding_version 固定 ledger-http-draft-1。未知字段拒绝；缺失与 null 区别，默认值不隐式补进等价比较。ID和数字沿用核心的精确JSON规则；不得先把number变成float64再判断幂等。Schema仅验证结构；重复键、非法Unicode、非有限值和越界原始数字须在运行解析器另行拒绝。
+
+### 宿主前端扩展：当前身份
+
+`GET /v1/identity` 是本应用为同源浏览器客户端提供的宿主扩展，不是上游核心操作，也不改变上表三类 binding 请求。请求携带现有 Bearer，无需 JSON 正文；其他方法返回405、`Allow: GET`。服务认证凭据后，先通过 `service.info` 相同的应用读取守卫，再返回 HTTP 200 JSON：
+
+```json
+{"actor":{"kind":"human","id":"owner"},"read":true,"write":true,"admin":true}
+```
+
+示例值仅说明结构；实际值来自可信凭据映射，不接受前端填写的 ActorRef。该成功响应不使用 Command/Action/Query 封套，响应为 `Cache-Control: no-store`；错误沿用 ErrorResponse，认证失败401，读取准入拒绝按既有规则返回。它不发放凭据、不返回 session proof，也不创建任务或实施会话。read/write/admin 仅描述宿主凭据能力，不能绕过目录状态、Task issuer 或当前承接者检查。
+
+`GET /` 和明确列出的 JS/CSS 静态资源属于 Go 嵌入的前端资产，不属于协议 API；前端仍只通过公开 HTTP 读取快照/事件并提交命令，不直接读取数据库。
 
 ## 2. 可信身份与权限
 

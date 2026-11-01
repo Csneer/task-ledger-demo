@@ -13,3 +13,5 @@ coverage.out
 *.sqlite-wal
 .DS_Store
 __pycache__/
+node_modules/
+test-results/

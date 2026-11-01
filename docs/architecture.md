@@ -1,18 +1,18 @@
 # 架构：个人任务账本与协议验证载体
 
-状态：2026-10-31，Go 核心、持久化、HTTP 后台、公开读取和 Skill 已实现，本机三种真实 CLI 闭环通过，远端环境阻塞，完整真人日常验收仍待完成。产品范围见[产品说明](product.md)，语义来源见[协议采用说明](../protocol/README.md)。
+状态：2026-11-01，Go 核心、持久化、HTTP 后台、公开读取、Skill 和 Task Orbit 前端已实现；独立客户端验证范围见 [S3 验收记录](validation/s3-agent-acceptance.md)，完整真人日常验收仍待完成。产品范围见[产品说明](product.md)，语义来源见[协议采用说明](../protocol/README.md)。
 
 ## 目标和边界
 
 用一个日常可用的个人任务工具，检验共同协议能否支撑人和 Agent 的真实协作。协议的完整性需要从合法场景是否能表达、不同接入方是否理解一致来判断；可靠性还需要持久事务、恢复与压力下的不变量证据。
 
-本项目将作为独立的 Go authority，而非现有 M1 daemon 的界面。一个工作空间对应一个 authority；Project 是其中的分组。首版面向个人或受控协作，前端暂定。应用、核心和适配先放在一个进程、一个 Go module 中，不提前拆成微服务。
+本项目作为独立的 Go authority，而非现有 M1 daemon 的界面。一个工作空间对应一个 authority；Project 是其中的分组。首版面向个人或受控协作，Task Orbit 前端使用原生 JavaScript 模块与 SVG/Canvas，由 Go 服务嵌入并同源提供。应用、核心和适配保持在一个进程、一个 Go module 中。
 
 ## 运行结构的设计
 
 ```mermaid
 flowchart TB
-    H["人的操作入口：前端待定"] --> API
+    H["Task Orbit：任务节点画布与交付验收"] --> API
     A["独立 Agent 客户端"] --> API
     API["公开 HTTP binding / 读取接口"] --> HOST["可信身份与操作准入"]
     HOST --> APP["项目 · 定向领取 · 汇总 · 接续"]
@@ -24,25 +24,29 @@ flowchart TB
     VIEW --> API
 ```
 
-图中核心、应用事务和持久存储已在 S2 实现；S3 已接入 HTTP、Bearer 身份映射、七个公开查询及轻量 Skill。显式 handoff、唤起执行器和前端仍待实现。存储采用 `modernc.org/sqlite v1.61.0`、SQLite/WAL 和 `synchronous=FULL`；写事务使用 `BEGIN IMMEDIATE`，读事务提供一致快照。迁移与文件边界见[存储说明](../migrations/README.md)。HTTP+JSON 的三个操作入口已作为 ledger-http-draft-1 固定，具体见[绑定基线](binding.md)，不是上游协议强制的通信方式。
+图中核心、应用事务和持久存储已在 S2 实现；S3 已接入 HTTP、Bearer 身份映射、七个公开查询及轻量 Skill。Task Orbit 通过这些公开入口读取和操作任务；显式 handoff 与后台唤起执行器仍未实现。存储采用 `modernc.org/sqlite v1.61.0`、SQLite/WAL 和 `synchronous=FULL`；写事务使用 `BEGIN IMMEDIATE`，读事务提供一致快照。迁移与文件边界见[存储说明](../migrations/README.md)。HTTP+JSON 的三个操作入口已作为 ledger-http-draft-1 固定，具体见[绑定基线](binding.md)，不是上游协议强制的通信方式。
+
+前端静态入口和明确列出的模块/CSS 使用 `go:embed` 随 daemon 构建，在 `/` 同源提供；不暴露测试文件、本地配置或目录列表。任务画布显示真实 Task 节点、关系与状态，悬停和详情承载目标、报告、交付与决定。深层子任务、重做和独立并行尝试复用现有命令及 namespaced 应用扩展，不新增另一套状态机。事件驱动的动效只表达已记录变化；提交仍是待验收，子任务完成不自动推进父任务。页面发布不会自动启动 Agent，当前会话可按 Skill 协作约定派生接收者主动领取。
 
 ## 模块职责
 
 | 目录 | 职责 | 不能承担的职责 |
 |---|---|---|
-| `cmd/taskledgerd` | 私有配置、一次性初始化、HTTP/TLS 监听与优雅停止 | 自动发行凭据、前端与通用执行器 |
+| `cmd/taskledgerd` | 私有配置、一次性初始化、HTTP/TLS 监听、组合 API 与同源前端、优雅停止 | 自动发行凭据与通用执行器 |
 | `internal/core` | 11 个核心操作、状态守卫、版本、事实和协议错误 | 注册、匹配、HTTP、项目汇总 |
 | `internal/registry` | 预留目录模块；目录写入在 application，凭据映射在 transport | 因为是管理员就修改任意 Task |
 | `internal/application` | 已实现 Project、Participant、ClaimPolicy、ActivitySession、执行绑定与核心事务编排；Summary/Handoff 待实现 | 另一套 Task 状态机 |
 | `internal/activity` | 预留独立模块；会话及绑定规则在 application，客户端 Skill 位于 skills/task-ledger | 将会话 end 或失联直接当作任务完成/失败 |
 | `internal/dispatch` | 注册的唤起配置、待处理唤起记录、结果核对 | 代目标 Agent claim、直接执行任务正文中的命令 |
 | `internal/storage` | 事务、成功回执、事件、应用一致性、恢复 | 将部分提交包装成成功 |
-| `internal/transport` | 三个 HTTP 路由、Bearer 身份解析、会话头映射与错误响应 | 接受客户端自报 HostContext |
-| `web` | 未来人类交互入口 | 直接写表或设置任务状态 |
+| `internal/transport` | 三个 binding POST 路由、宿主 identity GET、Bearer 身份解析、会话头映射与错误响应 | 接受客户端自报 HostContext |
+| `web` | Go 嵌入的同源 Task Orbit 页面、原生模块、节点画布、公开 API 客户端与交付验收交互 | 直接写表、任意设置任务状态、自动启动 Agent |
 
 `internal/jsonvalue` 负责精确数字、重复键与 Unicode 检查；`internal/contract` 使用嵌入的固定 Schema 离线校验。应用入口为 `Execute`（11 个核心操作）、`Action`（10 个应用动作）和 `Query`（7 个公开查询）。S2 的 `Snapshot`、`Session`、`Events` 仍是可信 Go 帮助入口；公开查询返回持久密钥签名的水位与 cursor，不能用内部整数替代。
 
 `Initialize` 一次性建立 authority 和持久管理者名册。`Host` 的身份及 read/write/admin 能力由可信适配传入，应用在事务内复查目录状态与操作资格。HTTP 适配器从带外凭据摘要映射身份与能力，不能将该结构体直接暴露给网络调用者。核心命令成功回执、应用动作回执、状态与事件共同提交；重放先检查当前读取权限，再返回历史结果，不推进当前事实。
+
+浏览器通过宿主扩展 `GET /v1/identity` 确认当前凭据映射的 ActorRef 与 read/write/admin 标志。该入口先认证，再调用 `service.info` 的应用读取守卫，成功后只返回公开身份投影，使用 `Cache-Control: no-store`；不返回 session proof、凭据或完整 HostContext，也不接受客户端自报身份。它不属于上游核心操作或原有三类 binding 封套；任务操作仍逐次接受目录、角色和当前状态检查，页面显示的能力标志不能授予 issuer 权限。
 
 查询从一个一致性读事务返回公开对象与完整提交水位；签名 cursor 绑定 authority、日志 incarnation、范围及 ActorRef。正常重启保留签名材料。读取按对象数和累计 BLOB 字节预算限制，完整响应仍在编码后检查 16 MiB 上限。不存在自动历史清理或无限快照容量。
 

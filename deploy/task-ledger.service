@@ -1,0 +1,16 @@
+[Unit]
+Description=Task Ledger Developer Preview
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/lib/task-ledger/current/taskledgerd -config %h/.local/state/task-ledger/server.json
+WorkingDirectory=%h/.local/state/task-ledger
+UMask=0077
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

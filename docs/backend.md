@@ -1,10 +1,10 @@
 # 后台与 Skill 接入
 
-当前后台使用 Go、SQLite/WAL 和 `ledger-http-draft-1`，适合本机或受控协作试用。前端暂缓。支持范围与真实验收结果见 [S3 验收记录](validation/s3-agent-acceptance.md)；以下配置包含占位符，必须替换为自己的私有路径和带外凭据摘要。
+当前后台使用 Go、SQLite/WAL 和 `ledger-http-draft-1`，适合本机或受控协作试用。同一地址 `/` 提供任务星轨前端；前端通过宿主新增的 `GET /v1/identity` 读取已认证 Actor 和凭据能力，当前 read 权仍由服务复查。支持范围与真实验收结果见 [S3 验收记录](validation/s3-agent-acceptance.md)及[前端说明](frontend.md)；以下配置包含占位符，必须替换为自己的私有路径和带外凭据摘要。
 
 ## 配置与启动
 
-从仓库根目录构建：
+从仓库根目录构建。以下 `/tmp` 路径仅用于开发试跑；持续运行使用 [运维说明](operations.md) 的持久安装目录和用户服务：
 
 ```sh
 go build -o /tmp/taskledgerd ./cmd/taskledgerd
@@ -46,6 +46,18 @@ go build -o /tmp/taskledgerd ./cmd/taskledgerd
 
 这些构建、初始化和启动参数已由源码及本轮真实后台启动核对；配置中的占位摘要不能直接运行。完整运行结果、清理和未覆盖项以验收记录为准。
 
+## 发行包中的首次配置
+
+候选发行包提供 `tools/init-config.py`，只依赖 Python 3 标准库。在解压后的包根目录执行：
+
+```sh
+python3 tools/init-config.py --dir "$HOME/.local/state/task-ledger" --authority personal --port 8090
+bin/taskledgerd -config "$HOME/.local/state/task-ledger/server.json" -init
+bin/taskledgerd -config "$HOME/.local/state/task-ledger/server.json"
+```
+
+父目录必须已存在，目标运行目录必须尚不存在。配置工具生成私有 `server.json`、`owner-token`、`owner-client.json` 和 intent 目录，不初始化数据库、不输出凭据；`-init` 才初始化 authority，且只执行一次。页面使用 `owner-token` 中的凭据，Skill 使用 `owner-client.json`。长期运行按 [运维说明](operations.md) 安装版本化二进制和持久用户服务，不能把测试目录当作正式数据目录。
+
 ## 身份登记与凭据更新
 
 1. 管理者通过 `participant.create` 登记稳定的 `{kind,id}`。显示名、模型和能力资料仅用于展示，不授予任务权限。
@@ -65,7 +77,7 @@ go build -o /tmp/taskledgerd ./cmd/taskledgerd
 
 请求需 UTF-8 JSON、Bearer 及相应会话头。完整封套、错误状态和权限见 [binding](binding.md)。请求上限 1 MiB，完整响应上限 16 MiB；workspace 各类对象上限 1000，事件页上限 200。超限明确拒绝，不截断成功数据。
 
-watermark 与 cursor 是不透明签名值。cursor 绑定当前 ActorRef，正常重启后可继续使用；读取时仍检查当前权限。分页按客户端返回的 next/follow cursor 推进，消费者按 event_id 去重。当前无历史清理或备份恢复流程，不能通过复制旧数据库宣称旧 cursor 仍有效。
+watermark 与 cursor 是不透明签名值。cursor 绑定当前 ActorRef，正常重启后可继续使用；读取时仍检查当前权限。分页按客户端返回的 next/follow cursor 推进，消费者按 event_id 去重。当前不提供在线历史清理或任意旧快照回滚。发布候选的停机完整状态备份、迁移和公开接口恢复演练见 [运维说明](operations.md)；不能通过复制旧数据库宣称旧 cursor 仍有效。
 
 `handoff.put`、唤起和 runner 调度尚未实现，相关操作明确返回不支持；`profiles.list` 返回当前真实空目录。含 wake 的创建请求明确拒绝并回滚。没有自动租约到期回收、任务正文执行器或外部工作停止保证。
 
@@ -97,4 +109,4 @@ python3 skills/task-ledger/scripts/ledger.py query --config /private/path/client
 
 真实 Agent 验收脚本为 [agent_acceptance.py](../scripts/agent_acceptance.py)，需要已认证且被明确授权使用的 CLI 环境；它不会在普通 CI 中自动调用模型。它启动隔离后台、使用合成任务并记录进程归属与清理结果。运行实际模型会使用客户端既有的账号与计算资源，应按自己的环境选择参与方。
 
-本轮验收覆盖范围见 [S3 记录](validation/s3-agent-acceptance.md)。真人日常 review、长时间连续使用、压力容量、备份恢复、受控 launcher 和前端仍需后续证据。
+本轮验收覆盖范围见 [S3 记录](validation/s3-agent-acceptance.md) 和 [前端验收](validation/frontend-results.md)。真人日常 review、长时间连续使用和压力容量仍需后续证据；备份恢复按 [运维说明](operations.md) 的隔离演练执行，受控 launcher、handoff 和自动唤起不在当前工作方式。

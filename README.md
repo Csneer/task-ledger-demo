@@ -11,12 +11,12 @@ Task Ledger Demo 希望把个人与 Agent 的日常协作连接起来：人登�
 
 它也是 [Agent↔Task Bridge](https://github.com/Csneer/agent-task-bridge) 的独立实践项目。通过产品设计、真实使用、故障注入和压力测试，检验任务协议能否支撑实际工程，并把发现的缺口与改进建议反馈给协议项目。
 
-**当前已实现 Go 后台、公开 HTTP 接口、签名事件游标和轻量 Skill，本机 Codex、Pi、Claude Code 的任务闭环已通过验收；前端暂缓。** 后端使用 Go；前端暂定。基础采用固定版本的 `task-core-draft-1`，不是现有 M1 daemon 的界面或客户端。
+**当前已实现 Go 后台、公开 HTTP 接口、轻量 Skill，以及以任务节点和流转动效为中心的 Task Orbit 前端。** 人发布和验收，当前会话派生的 Agent 主动领取、报告与交付；子任务、重做和并行尝试保留各自事实。基础采用固定版本的 `task-core-draft-1`，不是现有 M1 daemon 的界面或客户端。
 
 ## 想实现的体验
 
 - **随时登记工作。** 人发布任务并填写预期；Agent 通过配置 skill 登记正在实施的工作，留下目标、进展、决定、验证和下一步。
-- **让合适的 Agent 接手。** 登记稳定身份与能力资料，开放领取或指定 Agent；需要时通过登记的唤起配置启动目标 Agent，由它主动领取。
+- **让合适的 Agent 接手。** 登记稳定身份与能力资料，开放领取或指定 Agent；当前会话派生协作者，由它主动领取并记录实施。
 - **多个参与者各自负责。** 把复杂目标拆成关联任务，多个 Agent 或人分别实施；每份工作有明确的承接、交付和验收事实。
 - **收到结果再决定完成。** 预期可以在协作中明确和修订；执行者提交结果后，由发起者判断是否接受。实施会话结束、进程启动和任务完成分别记录。
 - **回来后知道从哪里继续。** 通过项目摘要、时间线、交付引用和显式交接记录接续工作，减少对某个私有会话的依赖。
@@ -25,8 +25,7 @@ Task Ledger Demo 希望把个人与 Agent 的日常协作连接起来：人登�
 flowchart LR
     P["人 / Agent 发布目标"] --> T["任务服务：共同协议事实"]
     S["Agent skill：实施登记与接续"] <--> T
-    T -->|可选唤起请求| L["已登记的 launcher 配置"]
-    L --> A["目标 Agent 主动领取"]
+    C["当前会话派生协作者"] --> A["目标 Agent 主动领取"]
     T <--> A
     A --> R["汇报与正式交付"]
     R --> D["发起方验收"]
@@ -34,7 +33,7 @@ flowchart LR
     H --> P
 ```
 
-同一个任务同时只有一个当前承接者；多个 Agent 的并行工作使用多个关联任务。唤起成功不等于领取，子任务完成不自动完成父任务，交付也不自动通过验收。
+同一个任务同时只有一个当前承接者；多个 Agent 的并行工作使用多个关联任务。启动进程不等于领取，子任务完成不自动完成父任务，交付也不自动通过验收。当前网页不自动唤起 Agent。
 
 ## 为什么做一个实际工具
 
@@ -46,19 +45,21 @@ flowchart LR
 
 借鉴 p-drive 的项目上下文、实施登记和接续体验；本项目使用独立的 Go 实现和协议事实，不复制其运行栈或会话状态机。p-drive 不是运行依赖。
 
-协议项目定义 Task、Assignment、Run、Submission、Decision 等共同语义。本项目补上个人工具需要的身份目录、项目分组、定向资格、skill、实施会话和可选唤起，并用实际工程检验两者的分工。注册、命令唤起、通信和汇总都不被强行塞进核心协议。
+协议项目定义 Task、Assignment、Run、Submission、Decision 等共同语义。本项目补上个人工具需要的身份目录、项目分组、定向资格、skill 和实施会话，并用实际工程检验两者的分工。注册、未来可选的命令唤起、通信和汇总都不被强行塞进核心协议。
 
 ## 当前进展
+
+当前工作区正在准备 **[Task Ledger Demo v0.1.0 Developer Preview](docs/releases/v0.1.0.md)**，尚未发布发行标签。发布候选会包含 Go 后台、Skill、同源 Task Orbit 前端、配置示例和可复现 smoke；公开发布前仍需完成干净源码验证、持久部署、恢复演练与真人验收。
 
 | 已建立 | 尚待实现与验证 |
 |---|---|
 | Go 核心的 11 个操作、精确 JSON 与固定协议校验 | 完整 binding 范围与跨 authority 互操作 |
 | SQLite/WAL 事务、HTTP 凭据映射、快照与签名事件 cursor | 更长时间的使用、恢复和容量测量 |
-| 身份目录、项目、定向资格、执行会话与可安装 Skill | handoff、受控 launcher 与前端 |
+| 身份目录、项目、定向资格、执行会话、可安装 Skill 与任务星轨前端 | handoff；自动 launcher 暂不进入当前工作方式 |
 | 并发领取、幂等重试、事务回滚与进程退出恢复测试 | 真实日常使用、完整故障矩阵与压力容量结果 |
 | 设计阶段的协议发现记录 | 上游提案处理、升级与回归证据 |
 
-验证区分契约结构、Go 行为、真实 HTTP 和 Agent 客户端。核心与事务证据见 [S2 实施结果](docs/validation/s2-results.md)，本轮后台与客户端验收状态见 [S3 验收记录](docs/validation/s3-agent-acceptance.md)。公开源码和单次联调不代表完整故障矩阵、容量基线或首个正式可用版本已经完成。
+验证区分契约结构、Go 行为、真实 HTTP 和 Agent 客户端。核心与事务证据见 [S2 实施结果](docs/validation/s2-results.md)，本轮后台与客户端验收状态见 [S3 验收记录](docs/validation/s3-agent-acceptance.md)。公开源码和单次联调不代表完整故障矩阵、容量基线或首个正式可用版本已经完成。当前预览候选的真人验收步骤见 [真人验收](docs/human-acceptance.md)。
 
 ## 继续了解
 
@@ -66,10 +67,12 @@ flowchart LR
 |---|---|
 | 产品目标与完整日常链路 | [产品范围](docs/product.md) |
 | 模块、事务与状态边界 | [架构设计](docs/architecture.md) |
-| 运行后台与配置客户端 | [后台接入](docs/backend.md) |
+| 运行后台与配置客户端 | [后台接入](docs/backend.md) · [持久部署与恢复](docs/operations.md) |
+| 任务画布、重做、多开与验收 | [前端说明](docs/frontend.md) · [设计约定](DESIGN.md) |
 | skill、注册、实施登记和唤起 | [Agent 接入设计](docs/agent-integration.md) |
 | 协议依据与应用接口 | [协议采用说明](protocol/README.md) · [S1 binding 基线](docs/binding.md) |
 | 设计发现、可靠性与压测 | [协议实践发现](docs/protocol-findings.md) · [验证计划](docs/validation.md) |
 | 分阶段任务与参与方式 | [路线图](docs/roadmap.md) · [贡献说明](CONTRIBUTING.md) |
+| 预览候选与人工核对 | [候选说明](docs/releases/v0.1.0.md) · [真人验收](docs/human-acceptance.md) · [变更记录](CHANGELOG.md) |
 
 欢迎用具体协作场景和可复现反例参与，让这个工具既能记录实际工作，也能为开放任务协议积累可信的工程证据。

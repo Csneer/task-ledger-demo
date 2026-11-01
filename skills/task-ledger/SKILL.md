@@ -1,6 +1,6 @@
 ---
 name: task-ledger
-description: 通过 Task Ledger 的公开 HTTP 协议登记实施会话、发布或领取任务、汇报交付与验收，并保留可恢复的写请求；用于已配置服务的任务协作，不自动启动其他 Agent。
+description: 通过 Task Ledger 的公开 HTTP 协议登记实施会话、发布或领取任务、汇报交付与验收，并保留可恢复的写请求；用于已配置服务的人与 Agent 协作、子任务分工和代码交付，不提供后台自动唤起。
 ---
 
 # Task Ledger
@@ -36,6 +36,12 @@ python3 <skill-dir>/scripts/ledger.py command --config <config.json> --request <
 5. 提交结果后由不可变 issuer 读取实际交付并 `task.decide`。Agent 自发任务可以如实自验收，但不能称为人的批准；需要人验收的任务由人发起。其他管理员没有代验收权。
 6. 明确 `session.end` 并记录实施摘要；它不会完成 Task 或释放承接。跨 Agent 接续需合法 release 后重新 claim/start；同身份换会话需显式 `session.transfer` 和双方证明，不使用别人的 session ID 猜测接管。
 
+## 代码分工与子任务
+
+需要委派子 Agent、多人共用仓库、独立 worktree、并行尝试或集成代码时，按需读取 [协作与交付约定](references/collaboration.md)。先把任务目标、文件归属、工作区方式、基线和验收责任写清，再发布任务；接收方通过自己的实施会话主动领取。默认使用当前会话可用的子 Agent 能力，不请求后台 launcher，不将发布、唤起或子 Agent 已启动视为领取成功。
+
+共用 checkout 时不同任务只改各自明确拥有的文件；独立试验或需要独立提交历史时使用单独 worktree。工作区方式不改变单 Task 单当前承接者的协议规则。发布任务不授权 commit、push 或合并；这些动作沿用用户和仓库已有授权。
+
 ## 结果未知与恢复
 
 写操作在发送前将原请求完整落入私有 intent 目录，fsync 后原子发布。相同服务、配置路径、请求类型和 ID 再次调用时要求请求字节完全相同；即使服务器允许某些数字写法等价，本助手也不替换已保存的原文。不要删掉意图文件来强行复用 ID。
@@ -44,4 +50,4 @@ python3 <skill-dir>/scripts/ledger.py command --config <config.json> --request <
 
 session 证明只从独立私有文件形成请求头；`--target-session-file` 用于 transfer 的目标证明。秘密不放入正文、产物、报告或提示词。begin/rotate 的 digest 属于请求内容，原请求会保存在私有意图记录中，公开查询不会返回它。
 
-发生冲突、身份/会话拒绝或输出不符合预期时，先核对服务公开事实再决定修正，不盲目重领或重做外部副作用。唤起 Agent、自动调度、handoff 和前端不由此 Skill 实现；没有 launcher 时仍可主动领取。
+发生冲突、身份/会话拒绝或输出不符合预期时，先核对服务公开事实再决定修正，不盲目重领或重做外部副作用。后台唤起、自动调度和 handoff 不由此 Skill 实现；使用当前会话的子 Agent 能力时仍按公开协议领取、交付与验收。

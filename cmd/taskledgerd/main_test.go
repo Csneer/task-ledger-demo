@@ -45,3 +45,12 @@ func TestConfigBoundaryAndRelativePaths(t *testing.T) {
 		t.Fatal("public config accepted")
 	}
 }
+
+func TestReleaseBuildIdentity(t *testing.T) {
+	oldVersion, oldCommit, oldDate := version, commit, buildDate
+	t.Cleanup(func() { version, commit, buildDate = oldVersion, oldCommit, oldDate })
+	version, commit, buildDate = "v0.1.0", "0123456789abcdef", "2026-11-01T00:00:00Z"
+	if got := buildID(); got != "v0.1.0 (0123456789abcdef 2026-11-01T00:00:00Z)" {
+		t.Fatalf("release identity: %s", got)
+	}
+}

@@ -26,6 +26,7 @@ import (
 	"github.com/Csneer/task-ledger-demo/internal/jsonvalue"
 	"github.com/Csneer/task-ledger-demo/internal/storage"
 	"github.com/Csneer/task-ledger-demo/internal/transport"
+	"github.com/Csneer/task-ledger-demo/web"
 )
 
 type config struct {
@@ -155,7 +156,7 @@ func serve(ctx context.Context, c config, initialize bool) error {
 		listener = tls.NewListener(listener, &tls.Config{MinVersion: tls.VersionTLS12, Certificates: []tls.Certificate{cert}})
 		scheme = "https"
 	}
-	server := &http.Server{Handler: handler, ReadHeaderTimeout: 5 * time.Second,
+	server := &http.Server{Handler: web.Handler(handler), ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second,
 		IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 << 10}
 	log.Printf("taskledgerd ready address=%s://%s build=%s", scheme, listener.Addr(), buildID())
@@ -179,12 +180,16 @@ func serve(ctx context.Context, c config, initialize bool) error {
 }
 
 func buildID() string {
-	value := "development"
+	value := version
+	if value == "" {
+		value = "development"
+	}
+	sourceCommit := commit
 	if info, ok := debug.ReadBuildInfo(); ok {
 		modified := false
 		for _, setting := range info.Settings {
-			if setting.Key == "vcs.revision" {
-				value = setting.Value
+			if setting.Key == "vcs.revision" && sourceCommit == "" {
+				sourceCommit = setting.Value
 			}
 			if setting.Key == "vcs.modified" && setting.Value == "true" {
 				modified = true
@@ -194,8 +199,22 @@ func buildID() string {
 			value += "+modified"
 		}
 	}
+	if sourceCommit != "" {
+		value += " (" + sourceCommit
+		if buildDate != "" {
+			value += " " + buildDate
+		}
+		value += ")"
+	}
 	return value
 }
+
+// These values are replaced by the release build; local builds remain explicit.
+var (
+	version   = "development"
+	commit    string
+	buildDate string
+)
 
 func main() {
 	// The database includes private receipts and cursor signing material. Apply

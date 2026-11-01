@@ -72,6 +72,28 @@ func New(api API, credentials []Credential) (http.Handler, error) {
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	// This host endpoint tells browser clients who the opaque credential maps
+	// to. It never accepts a client-supplied actor or changes protocol semantics.
+	if r.URL.Path == "/v1/identity" {
+		if r.Method != http.MethodGet {
+			w.Header().Set("Allow", "GET")
+			writeError(w, 405, "binding", "INVALID_MESSAGE")
+			return
+		}
+		host, ok := h.authenticate(r)
+		if !ok {
+			w.Header().Set("WWW-Authenticate", "Bearer")
+			writeError(w, 401, "binding", "UNAUTHENTICATED")
+			return
+		}
+		_, err := h.api.Query(r.Context(), host, []byte(`{"binding_version":"ledger-http-draft-1","operation":"service.info","body":{}}`))
+		if err != nil {
+			writeApplicationError(w, err)
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"actor": host.Actor, "read": host.Read, "write": host.Write, "admin": host.Admin})
+		return
+	}
 	var call func(context.Context, application.Host, []byte) (application.Object, error)
 	switch r.URL.Path {
 	case "/v1/commands":
