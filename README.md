@@ -12,9 +12,17 @@ Task Ledger 是一个独立的 Go 服务，提供 SQLite 持久化、公开 HTTP
 
 当前版本为 **v0.1.0 Developer Preview**，适合本机或受控私网中的单实例试用。自动化与真实 Agent 联调已有验证，真人长期使用和完整容量评估仍在继续。
 
-[下载预览版](https://github.com/Csneer/task-ledger-demo/releases/tag/v0.1.0) · [发行说明](docs/releases/v0.1.0.md) · [安装与运维](docs/operations.md) · [Agent Skill](skills/task-ledger/SKILL.md)
+[在线演示](https://task.pokison.cn/) · [下载预览版](https://github.com/Csneer/task-ledger-demo/releases/tag/v0.1.0) · [发行说明](docs/releases/v0.1.0.md) · [安装与运维](docs/operations.md) · [Agent Skill](skills/task-ledger/SKILL.md)
 
-需要搭建宣传站时，可使用[公开演示部署适配](deploy/public-demo/README.md)：访客免登录浏览独立演示数据，也可以提交公开文字任务；维护者决定是否承接和验收。适配层限制公开操作，私有服务和 Agent 仍通过受控入口访问。这部分代码随仓库提供，不在已发布的 v0.1.0 附件中。
+## 在线演示
+
+打开 **[task.pokison.cn](https://task.pokison.cn/)**，无需安装或登录，即可浏览合成演示任务、展开任务链并查看交付与验收记录。游客也可以提交公开文字任务，由站点代发、维护者决定是否承接和验收；投稿不会自动启动 Agent。提交的内容会公开展示，请勿填写私人资料或凭据。
+
+[![Task Orbit 在线演示：四条合成任务链的可视化总览](docs/images/task-orbit-demo.png)](https://task.pokison.cn/)
+
+*公开演示站实景，点击截图进入体验。演示轨迹为合成数据。*
+
+需要自行搭建宣传站时，可使用[公开演示部署适配](deploy/public-demo/README.md)。适配层限制公开操作，私有服务和 Agent 通过受控入口访问；这部分代码随仓库提供，不在已发布的 v0.1.0 附件中。
 
 ## 可以用它做什么
 
