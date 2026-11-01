@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "checks": [
+    "authenticated same-origin workspace",
+    "open detail follows external events without overwriting forms",
+    "identity changes blocked throughout a multi-request write workflow",
+    "claim/start/report/submit/reject/reopen/new assignment/accept",
+    "each submission displays its own decision",
+    "terminal retry creates a related task",
+    "child and deeper child via public create",
+    "three independent related draws",
+    "lost response and exact retry create one task",
+    "tab credential and snapshot restore",
+    "reconnected completed task replays the persisted order including rejection and rework",
+    "historical playback advances, pauses across polling, and never changes current task state",
+    "completed orbit stays animated and task replay can return to its task chain",
+    "390px historical playback and zoom controls remain separate",
+    "390px navigation and detail dialog",
+    "no page JavaScript errors",
+    "reduced-motion keeps numbered history available and starts paused"
+  ],
+  "errors": [],
+  "taskId": "c28e9ccb-2c65-4bac-8c2c-1960b61eba8f",
+  "build": {
+    "identity": "v0.1.0 (b76d3ab29e8751be7ede1a9ac1b239e305bbdb3a 2026-11-01T14:14:32+08:00)",
+    "sha256": "14ef4931066e59c2d1f951db8aecb88d7fd0e48263b7d05698c5badff59c6758"
+  },
+  "at": "2026-11-01T06:16:53.930Z"
+}

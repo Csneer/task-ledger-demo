@@ -109,4 +109,4 @@ python3 skills/task-ledger/scripts/ledger.py query --config /private/path/client
 
 真实 Agent 验收脚本为 [agent_acceptance.py](../scripts/agent_acceptance.py)，需要已认证且被明确授权使用的 CLI 环境；它不会在普通 CI 中自动调用模型。它启动隔离后台、使用合成任务并记录进程归属与清理结果。运行实际模型会使用客户端既有的账号与计算资源，应按自己的环境选择参与方。
 
-本轮验收覆盖范围见 [S3 记录](validation/s3-agent-acceptance.md) 和 [前端验收](validation/frontend-results.md)。真人日常 review、长时间连续使用和压力容量仍需后续证据；备份恢复按 [运维说明](operations.md) 的隔离演练执行，受控 launcher、handoff 和自动唤起不在当前工作方式。
+本轮验收覆盖范围见 [S3 记录](validation/s3-agent-acceptance.md) 和 [前端验收](validation/frontend-results.md)。真人日常 review、长时间连续使用和完整压力容量仍需后续证据；本轮发行安装、冷态恢复、持久部署和短时负载结果见 [发布准备证据](validation/release-prep-20261101.md)，后续备份恢复按 [运维说明](operations.md) 的边界执行，受控 launcher、handoff 和自动唤起不在当前工作方式。

@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "checks": [
+    "desktop pagination covers all 20 chains exactly once (12 + 8)",
+    "390px pagination covers all 20 chains without clipping or duplicates",
+    "chain membership and recorded order match service facts; filtering is explicitly partial",
+    "automatic replay crosses three task nodes, moves camera into safe area and preserves keyboard focus",
+    "drag and zoom disable camera follow while automatic history continues; follow can resume",
+    "pause survives polling; previous and next navigate actual recorded steps",
+    "editing suspends both playback and camera without losing input, focus or prior play/pause intent",
+    "single-task replay isolates nodes and history; complete step labels and current status remain distinct",
+    "empty filter has a working reset without creating tasks",
+    "short 390x667 playback keeps current node clear; short desktop overview reduces density",
+    "reduced-motion stops autoplay and animation while keeping history available",
+    "browser-only 100-level layout fixture bounds app to 24 tasks and search reaches distant neighborhood",
+    "all interactions are read-only; every task state/revision preserved; zero page errors"
+  ],
+  "writes": 0,
+  "errors": [],
+  "build": {
+    "identity": "v0.1.0 (b76d3ab29e8751be7ede1a9ac1b239e305bbdb3a 2026-11-01T14:14:32+08:00)",
+    "sha256": "14ef4931066e59c2d1f951db8aecb88d7fd0e48263b7d05698c5badff59c6758"
+  },
+  "at": "2026-11-01T06:17:44.166Z"
+}

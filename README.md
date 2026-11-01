@@ -49,17 +49,17 @@ flowchart LR
 
 ## 当前进展
 
-当前工作区正在准备 **[Task Ledger Demo v0.1.0 Developer Preview](docs/releases/v0.1.0.md)**，尚未发布发行标签。发布候选会包含 Go 后台、Skill、同源 Task Orbit 前端、配置示例和可复现 smoke；公开发布前仍需完成干净源码验证、持久部署、恢复演练与真人验收。
+**[Task Ledger Demo v0.1.0 Developer Preview](docs/releases/v0.1.0.md) 候选已完成工程准备，尚未公开发布。** 干净源码发行包、安装与冷态恢复 smoke、持久部署、17 组流转/13 组可用性以及有界混合负载验证已完成，见 [发布准备证据](docs/validation/release-prep-20261101.md)。真人日常验收与公开发行决定仍待完成。
 
 | 已建立 | 尚待实现与验证 |
 |---|---|
 | Go 核心的 11 个操作、精确 JSON 与固定协议校验 | 完整 binding 范围与跨 authority 互操作 |
-| SQLite/WAL 事务、HTTP 凭据映射、快照与签名事件 cursor | 更长时间的使用、恢复和容量测量 |
+| SQLite/WAL 事务、HTTP 凭据映射、快照与签名事件 cursor | 更长时间的使用、完整恢复矩阵和压力容量测量 |
 | 身份目录、项目、定向资格、执行会话、可安装 Skill 与任务星轨前端 | handoff；自动 launcher 暂不进入当前工作方式 |
 | 并发领取、幂等重试、事务回滚与进程退出恢复测试 | 真实日常使用、完整故障矩阵与压力容量结果 |
 | 设计阶段的协议发现记录 | 上游提案处理、升级与回归证据 |
 
-验证区分契约结构、Go 行为、真实 HTTP 和 Agent 客户端。核心与事务证据见 [S2 实施结果](docs/validation/s2-results.md)，本轮后台与客户端验收状态见 [S3 验收记录](docs/validation/s3-agent-acceptance.md)。公开源码和单次联调不代表完整故障矩阵、容量基线或首个正式可用版本已经完成。当前预览候选的真人验收步骤见 [真人验收](docs/human-acceptance.md)。
+验证区分契约结构、Go 行为、真实 HTTP 和 Agent 客户端。核心与事务证据见 [S2 实施结果](docs/validation/s2-results.md)，本轮后台与客户端验收状态见 [S3 验收记录](docs/validation/s3-agent-acceptance.md)。公开源码、单次联调和短时负载基线不代表完整故障矩阵、容量上限或首个正式可用版本已经完成。当前预览候选的真人验收步骤见 [真人验收](docs/human-acceptance.md)。
 
 ## 继续了解
 

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "transport": "Mac HTTPS with explicit CA and IP verification",
+  "assets": {
+    "/": "c23e855040a7d1ab684b1a2fd5256c62fb0b366cc4a1a4e206ba35c1e00b4a7f",
+    "/app.js": "c3aa31d7e9398268da457d2282a7122a40a7875ab0f287ebfc6f9f658a4c3ca6",
+    "/api.js": "ca188c3c9dd599fe11ed10a23b9a10fa80304ac5022c45e25f84ececfa8c3d0c",
+    "/graph.js": "964a2156988275a29e846b0f2c1faa6d4fb384e868a63ab6cc1af91d6c421786",
+    "/history.js": "149dc11ca6de9bd57b8f04b118bfe6c81b4f8282f3edcb22f2e4997498743b62",
+    "/journeys.js": "4b7a9e6634058d17fbac9dbe350dd873701d7bd2d215cdb0df24558c9c8427de",
+    "/model.js": "40cdbf2240422ac00bdd34c5ec1e11e761221806595601005a9bcbc48331ffb3",
+    "/ui.css": "1c8ac6d07150e67fe2603269099ea1b0db53a9c6de760f67d279462c45c1e378",
+    "/graph.css": "c3db624bb1138635acd617efb8df2521366ec0321104ec5848ecafd6e1cae85b"
+  }
+}

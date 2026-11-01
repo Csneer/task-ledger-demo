@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "started_at": "2026-11-01T06:17:44.317Z",
+  "duration_seconds": 60,
+  "build": {
+    "identity": "v0.1.0 (b76d3ab29e8751be7ede1a9ac1b239e305bbdb3a 2026-11-01T14:14:32+08:00)",
+    "sha256": "14ef4931066e59c2d1f951db8aecb88d7fd0e48263b7d05698c5badff59c6758"
+  },
+  "workload": "4 paced workspace readers and 20 task creates with exact replays; one two-session claim race",
+  "environment": {
+    "platform": "linux",
+    "release": "7.0.0-31-generic",
+    "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+    "logical_cpus": 22,
+    "memory_bytes": 33126903808,
+    "node": "v24.20.0"
+  },
+  "transport": "loopback HTTP, SQLite WAL/FULL",
+  "limits": "Synthetic short workload, not a saturation test, long-duration soak, UI performance or production SLO.",
+  "initial_tasks": 113,
+  "single_assignment_race": true,
+  "final_tasks": 134,
+  "idempotent_creates": 20,
+  "original_tasks_unchanged": true,
+  "elapsed_seconds": 60.407750029000006,
+  "metrics": {
+    "workspace.snapshot": {
+      "requests": 1428,
+      "p50_ms": 66.61301999999705,
+      "p95_ms": 86.27101799999946,
+      "max_ms": 130.17953199999465,
+      "max_response_bytes": 246009,
+      "errors": 0
+    },
+    "task.create": {
+      "requests": 40,
+      "p50_ms": 10.479557000000568,
+      "p95_ms": 63.8533809999999,
+      "max_ms": 78.961139,
+      "max_response_bytes": 1532,
+      "errors": 0
+    }
+  }
+}
