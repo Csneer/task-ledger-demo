@@ -1,0 +1,25 @@
+[Unit]
+Description=Task Ledger public text submissions
+After=network.target task-ledger.service
+Requires=task-ledger.service
+
+[Service]
+Type=simple
+User=taskledger-public
+Group=taskledger-public
+WorkingDirectory=/var/lib/task-ledger-public
+ExecStart=/usr/bin/python3 /opt/task-ledger/public-demo/intake.py --config /etc/task-ledger-public/config.json
+UMask=0077
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/task-ledger-public
+MemoryMax=128M
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

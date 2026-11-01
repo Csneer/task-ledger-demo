@@ -1,0 +1,65 @@
+# Install as a separate conf.d file. Replace VIEWER_TOKEN on the server only;
+# the resulting file must be mode 0600. Default: cloudflared on the same host.
+# For a remote connector, add a listen on the server's specific LAN address.
+# Only trust CF-Connecting-IP from the verified connector address.
+limit_req_zone $binary_remote_addr zone=task_ledger_reads:1m rate=8r/s;
+limit_req_zone $binary_remote_addr zone=task_ledger_posts:1m rate=2r/m;
+limit_conn_zone $binary_remote_addr zone=task_ledger_connections:1m;
+
+server {
+    listen 127.0.0.1:4174;
+    server_name task.pokison.cn;
+    root /opt/task-ledger/site;
+    set_real_ip_from 127.0.0.1;
+    real_ip_header CF-Connecting-IP;
+    limit_req_status 429;
+    limit_conn_status 429;
+    limit_conn task_ledger_connections 20;
+    client_max_body_size 16k;
+    client_header_timeout 10s;
+    client_body_timeout 10s;
+    proxy_connect_timeout 3s;
+    proxy_read_timeout 15s;
+    proxy_send_timeout 15s;
+    access_log /var/log/nginx/task-ledger.access.log main;
+    error_log /var/log/nginx/task-ledger.error.log warn;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy no-referrer always;
+    add_header Cache-Control no-store always;
+    add_header Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'none'" always;
+
+    location = / { try_files /index.html =404; }
+    location = /demo-bootstrap.js { alias /opt/task-ledger/public-demo/bootstrap.js; }
+    location = /demo.css { alias /opt/task-ledger/public-demo/style.css; }
+    location ~ ^/(app|api|model|graph|history|journeys)\.js$ {
+        proxy_set_header Authorization "";
+        proxy_pass http://127.0.0.1:4175;
+    }
+    location ~ ^/(ui|graph)\.css$ {
+        proxy_set_header Authorization "";
+        proxy_pass http://127.0.0.1:4175;
+    }
+    location = /v1/identity {
+        if ($request_method != GET) { return 405; }
+        limit_req zone=task_ledger_reads burst=30 nodelay;
+        proxy_set_header Authorization "Bearer VIEWER_TOKEN";
+        proxy_pass http://127.0.0.1:4175;
+    }
+    location = /v1/queries {
+        if ($request_method != POST) { return 405; }
+        limit_req zone=task_ledger_reads burst=30 nodelay;
+        proxy_set_header Authorization "Bearer VIEWER_TOKEN";
+        proxy_pass http://127.0.0.1:4175;
+    }
+    location = /demo/tasks {
+        if ($request_method != POST) { return 405; }
+        limit_req zone=task_ledger_posts burst=2 nodelay;
+        proxy_set_header Authorization "";
+        proxy_set_header X-Ledger-Session "";
+        proxy_set_header X-Ledger-Session-Proof "";
+        proxy_set_header Host $host;
+        proxy_pass http://127.0.0.1:4176;
+    }
+    location /v1/ { return 403; }
+    location / { return 404; }
+}

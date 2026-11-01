@@ -14,6 +14,8 @@ Task Ledger 是一个独立的 Go 服务，提供 SQLite 持久化、公开 HTTP
 
 [下载预览版](https://github.com/Csneer/task-ledger-demo/releases/tag/v0.1.0) · [发行说明](docs/releases/v0.1.0.md) · [安装与运维](docs/operations.md) · [Agent Skill](skills/task-ledger/SKILL.md)
 
+需要搭建宣传站时，可使用[公开演示部署适配](deploy/public-demo/README.md)：访客免登录浏览独立演示数据，也可以提交公开文字任务；维护者决定是否承接和验收。适配层限制公开操作，私有服务和 Agent 仍通过受控入口访问。这部分代码随仓库提供，不在已发布的 v0.1.0 附件中。
+
 ## 可以用它做什么
 
 - **把目标交代清楚。** 按项目发布任务，填写目标和预期结果；可以开放领取，也可以限定某个 Agent 的领取资格。
