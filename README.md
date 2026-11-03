@@ -8,11 +8,11 @@ A personal task ledger for people and agents, with a visual workspace and an ope
 [![Developer Preview](https://img.shields.io/badge/version-v0.1.0_Developer_Preview-orange.svg)](https://github.com/Csneer/task-ledger-demo/releases/tag/v0.1.0)
 [![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Task Ledger 是一个独立的 Go 服务，提供 SQLite 持久化、公开 HTTP 接口和 Python Agent Skill；**Task Orbit** 是随服务一起提供的网页工作区。你可以在页面发布目标，在自己的 Codex、Claude Code 或 Pi 会话中安排 Agent 执行，再回到页面查看报告、核对成果并接受或退回交付。
+Task Ledger 为 Agent 协作保存可追溯的任务事实：主 Agent 领取目标、发布子任务，其他 Agent 独立领取并交付，主 Agent 验收子交付、汇总父任务，再交给原发起者验收。服务使用 Go 与 SQLite，提供公开 HTTP 接口和 Python Agent Skill；**Task Orbit** 是随服务提供的网页工作区，用于发布目标、查看进展和验收成果。选择、启动子 Agent 与实际工作由你当前的助手会话负责。
 
 当前版本为 **v0.1.0 Developer Preview**，适合本机或受控私网中的单实例试用。自动化与真实 Agent 联调已有验证，真人长期使用和完整容量评估仍在继续。
 
-[在线演示](https://task.pokison.cn/) · [下载预览版](https://github.com/Csneer/task-ledger-demo/releases/tag/v0.1.0) · [发行说明](docs/releases/v0.1.0.md) · [安装与运维](docs/operations.md) · [Agent Skill](skills/task-ledger/SKILL.md)
+[在线演示](https://task.pokison.cn/) · [Agent 快速接入](docs/agent-quickstart.md) · [下载预览版](https://github.com/Csneer/task-ledger-demo/releases/tag/v0.1.0) · [发行说明](docs/releases/v0.1.0.md) · [安装与运维](docs/operations.md) · [Agent Skill](skills/task-ledger/SKILL.md)
 
 ## 在线演示
 
@@ -44,6 +44,55 @@ flowchart LR
 ```
 
 **提交不等于完成，只有任务的原发起者可以验收。** 同一任务同时只有一个当前承接者；并行工作使用多个关联任务。子任务完成不自动完成父任务，指定 Agent 也不等于启动或领取任务。
+
+## Agent 接入与主子任务协作
+
+### 将任务交给现有 Agent
+
+准备一个可写的私有实例、已登记的项目，以及管理员为该 Agent 提供的独立凭据和客户端配置。接入只需 Python 3：将 `skills/task-ledger/` 整个目录放到客户端可读取的位置，让助手显式读取 `SKILL.md` 即可；支持 skills 的宿主也可安装该目录。当前没有一键注册发证，身份与凭据准备步骤见[快速接入指南](docs/agent-quickstart.md)。公开演示站提供浏览和游客投稿，Agent 的执行写入使用私有 API。
+
+将下列模板中的路径和 TaskRef 换成实际值，再交给主 Agent；凭据内容不用进入提示词：
+
+```text
+读取 /absolute/path/task-ledger/SKILL.md。
+使用私有客户端配置 /private/path/main-agent/client.json，
+处理任务 {authority_id: "my-authority", task_id: "parent-task"}，
+工作区为 /absolute/path/repository。
+先查询当前事实，登记自己的会话，再合法领取和开始。
+需要分工时，在授权范围内发布各自有明确成果和验收条件的子任务，
+使用当前宿主的子代理能力交接 TaskRef、工作范围及各自的配置路径。
+子代理独立领取、报告并提交；你读取真实交付和产物后验收，
+汇总提交父任务，等待父任务原发起者决定。遇到未知写入结果保留原请求核对。
+```
+
+[接入指南](docs/agent-quickstart.md)包含可执行的连接检查、子 Agent 提示模板、身份准备和恢复步骤。当前 `ledger.py` 提供 `query/action/command` 与 `session-secret`，请求使用完整 JSON；尚无一条命令完成拆解、启动和汇总的编排器。
+
+### 谁执行、谁验收
+
+```mermaid
+flowchart TD
+    U["人或上游 Agent 发起父任务 P"] --> M["主 Agent M 领取并开始 P"]
+    M --> C1["M 发布子任务 C1，Agent B 执行并提交"]
+    M --> C2["M 发布子任务 C2，Agent C 执行并提交"]
+    C1 --> D["M 读取 Submission 与实际产物，逐项验收"]
+    C2 --> D
+    D --> S["M 完成集成验证，汇总提交父任务 P"]
+    S --> F["P 的原发起者验收父交付"]
+```
+
+M 是 C1/C2 的创建者，因此可以决定子任务的交付；M 是 P 的承接者，因此提交父结果后仍要等待 P 的原发起者。子 Agent 的聊天回复、进程退出或 session 结束不能替代 `run.submit`；主 Agent 也不能仅凭这些信号决定完成。子任务需要重做时，由其 issuer 拒绝并显式重开；各轮交付和决定都保留。
+
+### 哪些已经跑通
+
+| 场景 | 当前证据与边界 |
+|---|---|
+| 一个父任务发出多个子任务，独立交付再汇总验收 | **已通过真实四客户端验收**：本机 Codex 发布三个子任务，Pi、Claude Code、远端 Codex 交付，主 Codex 核验并接受，汇总父任务后由测试 human issuer 接受 |
+| 各客户端通过同一 Skill 接入 | Pi 在上述验收使用 Skill；Codex、Claude Code、远端 Codex 使用同一公开契约的独立 HTTP 客户端。另有本机 Codex 用 Skill 完成代码审查任务的证据，不能推广成所有宿主适配均已通过 |
+| 原生子代理自由拆解、递归分工与代码集成 | **尚未完整验收**。上述三个子任务预先定义，外层 Python 脚本启动客户端；那次 Codex 验收关闭了 `multi_agent`，不是原生子代理树测试 |
+| 回写、断线核对与正常重启 | 已有进展报告、正式交付、持久请求意图、原 ID 重放和重启接续证据；当前 Skill 不自动恢复模型进程或上下文 |
+| 后台自动派发、唤起、长期 handoff | 尚未实现。当前宿主负责启动和协调，服务不因子任务完成自动推进父任务 |
+
+详情见[真实客户端验收](docs/validation/s3-agent-acceptance.md)、[Codex Skill 审查验收](docs/validation/frontend-results.md)与[代码协作约定](skills/task-ledger/references/collaboration.md)。下一步需要补的是各宿主原生子代理的真实代码任务，以及主会话压缩或中断后接续验收；不能用合成演示轨迹代替这些证据。
 
 ## 快速开始
 
@@ -164,7 +213,8 @@ make browser-check
 
 | 需要了解 | 入口 |
 |---|---|
-| 配置、凭据与 Agent 接入 | [后台接入](docs/backend.md) · [Skill](skills/task-ledger/SKILL.md) |
+| Agent 接入、子任务分工与恢复 | [快速接入](docs/agent-quickstart.md) · [协作约定](skills/task-ledger/references/collaboration.md) · [Skill](skills/task-ledger/SKILL.md) |
+| 服务配置与身份凭据 | [后台接入](docs/backend.md) |
 | 持久部署、备份与升级 | [运维说明](docs/operations.md) |
 | 任务画布、回放、重做与并行 | [前端说明](docs/frontend.md) · [设计约定](DESIGN.md) |
 | 产品边界与后续方向 | [产品范围](docs/product.md) · [路线图](docs/roadmap.md) |

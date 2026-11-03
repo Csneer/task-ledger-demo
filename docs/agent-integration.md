@@ -2,6 +2,8 @@
 
 状态：S3 已实现 HTTP 后台与[可安装 Skill](../skills/task-ledger/README.md)，接口规范沿用 [binding 基线](binding.md)。运行配置见[后台接入](backend.md)，真实客户端证据见 [S3 验收记录](validation/s3-agent-acceptance.md)。本文同时保留 S4 可选唤起设计，不能把未实现部分当成当前能力。
 
+首次接入请从[Agent 快速接入与主子任务闭环](agent-quickstart.md)开始：包含配置检查、主/子 Agent 提示模板、验收责任和中断恢复。当前通过已有助手会话派生执行者；下文的 launcher / WakeRequest 流程是后续设计。已有四客户端验收使用预定义子任务和外层脚本编排，尚不证明原生子代理的自主拆解或长期接续。
+
 ## Skill 是日常接入入口
 
 Agent 宿主加载 skill 后，通过薄客户端访问服务。skill 引导何时登记、如何查任务、如何汇报和交付；服务仍是权威事实来源。skill 不拥有修改数据库、跳过角色检查或把失败隐藏为成功的能力。
@@ -15,7 +17,7 @@ Agent 宿主加载 skill 后，通过薄客户端访问服务。skill 引导何�
 | 默认 Project、工作空间引用 | 帮助归属与接续；本机目录/会话原文不默认上传 |
 | 可选 LaunchProfile 引用 | 指向管理者登记的唤起配置；Agent 自报配置不能立即变成可执行命令 |
 
-skill 的预期动作包括：身份核对/登记、读取项目摘要、实施登记与更新、发现/领取任务、正式交付与验收、委派任务、可选唤起和结果核对、汇总与接续。HTTP 路径与契约级配置在 S1 固定；当前助手使用 [Skill 文件配置](../skills/task-ledger/SKILL.md)，将本目录整体复制到 Agent skills 目录或显式读取即可接入。凭据由管理员带外提供，助手不自动注册身份或签发凭据。
+当前 skill 引导身份核对、实施会话登记、发现/领取任务、报告、交付与验收，以及通过现有宿主工具协作；未来的可选唤起和 handoff 不在当前实现内。HTTP 路径与契约级配置在 S1 固定；助手使用 [Skill 文件配置](../skills/task-ledger/SKILL.md)，将 `skills/task-ledger/` 整个目录复制到客户端支持的 skills 目录，或显式读取其中的 `SKILL.md` 即可接入。凭据由管理员带外提供，助手不自动注册身份或签发凭据。
 
 ## ActivitySession 与协议执行分开
 

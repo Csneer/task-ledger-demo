@@ -29,6 +29,16 @@
 
 父任务由自动化测试的 `human` Actor 发起。真实 Codex 发布的子任务由 Codex 自己验收，最后自动化 `human` Actor 验收父交付。**这里的人类主体是角色测试，不是真人在前端或 CLI 中阅读结果并作判断。**
 
+### 编排方式与 Skill 覆盖边界
+
+本次通过的是同一 authority 下的父子任务协议闭环，不是原生子代理系统的完整验收。[验收脚本](../../scripts/agent_acceptance.py)预先给出各子任务的目标、预期结果和接收者；Codex 按这些输入发布任务。外层 Python 脚本随后启动 Pi、Claude Code 和远端 Codex，最后再次调用主 Codex 核验并汇总。这验证了真实客户端发布、执行和验收的事实，未验证主 Agent 自主决定任务拆分与进程调度。
+
+- 主 Codex 的测试启动参数明确包含 `--disable multi_agent`；Claude Code 仅开放 `Bash/Read/Write/Edit`。测试提示也禁止客户端继续 spawn agents。因此本次不能作为 Codex 或 Claude Code 原生递归子代理的通过证据。
+- Pi 使用项目 Skill 和 Python 助手；其他三个客户端依据同一公开 HTTP 契约独立实现调用。之后的[前端验收](frontend-results.md)另行记录了本机 Codex 使用 Skill 完成单个代码审查任务，但没有覆盖所有宿主的原生子代理树。
+- 主 Codex 在汇总阶段使用保存的 session proof 恢复同一执行；这不等于长会话上下文压缩、proof 丢失后接管、复杂代码合并或后台自动 handoff 都已验收。
+
+本文原有成功、失败结果与脱敏 JSON 保持各自的验证范围。首次接入与当前人工/宿主协调方式见[快速接入指南](../agent-quickstart.md)。
+
 ## 本机完整闭环与初轮远端结果
 
 下表保留本机第三轮完整闭环及此前远端 SSH 失败记录；后续远端复测单独记录，不覆盖历史结果。
