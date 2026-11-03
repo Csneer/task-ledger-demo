@@ -119,7 +119,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-def send(config_path, route, request_path, session_path=None, target_path=None, timeout=10):
+def send(config_path, route, request_path=None, session_path=None, target_path=None, timeout=10):
     config_path = Path(config_path).resolve()
     config = strict_json(private_read(config_path))
     if set(config) - {"service_url", "credential_file", "ca_file", "intent_dir"}:
@@ -146,14 +146,16 @@ def send(config_path, route, request_path, session_path=None, target_path=None, 
 
     credential = private_read(referenced("credential_file")).decode("ascii").strip()
     token_bytes(credential)
-    with open(request_path, "rb") as source:
-        raw = source.read(MAX_REQUEST + 1)
-    if len(raw) > MAX_REQUEST:
-        raise ValueError("request exceeds 1 MiB")
-    request = strict_json(raw)
-    if request.get("binding_version") != "ledger-http-draft-1":
-        raise ValueError("unsupported binding_version")
-    if route != "queries":
+    raw = None
+    if route != "identity":
+        with open(request_path, "rb") as source:
+            raw = source.read(MAX_REQUEST + 1)
+        if len(raw) > MAX_REQUEST:
+            raise ValueError("request exceeds 1 MiB")
+        request = strict_json(raw)
+        if request.get("binding_version") != "ledger-http-draft-1":
+            raise ValueError("unsupported binding_version")
+    if route not in {"queries", "identity"}:
         identity = request.get("command", {}).get("command_id") if route == "commands" else request.get("request_id")
         if not isinstance(identity, str) or not identity or len(identity) > 256:
             raise ValueError("write request requires a nonempty command_id/request_id")
@@ -174,7 +176,8 @@ def send(config_path, route, request_path, session_path=None, target_path=None, 
         hidden.append(target["secret"])
     context = ssl.create_default_context(cafile=str(referenced("ca_file")) if "ca_file" in config else None)
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect(), urllib.request.HTTPSHandler(context=context))
-    req = urllib.request.Request(url + "/v1/" + route, data=raw, headers=headers, method="POST")
+    req = urllib.request.Request(url + "/v1/" + route, data=raw, headers=headers,
+                                 method="GET" if route == "identity" else "POST")
     try:
         response = opener.open(req, timeout=timeout)
     except urllib.error.HTTPError as error:

@@ -2,7 +2,7 @@
 
 状态：S3 已实现 HTTP 后台与[可安装 Skill](../skills/task-ledger/README.md)，接口规范沿用 [binding 基线](binding.md)。运行配置见[后台接入](backend.md)，真实客户端证据见 [S3 验收记录](validation/s3-agent-acceptance.md)。本文同时保留 S4 可选唤起设计，不能把未实现部分当成当前能力。
 
-首次接入请从[Agent 快速接入与主子任务闭环](agent-quickstart.md)开始：包含配置检查、主/子 Agent 提示模板、验收责任和中断恢复。当前通过已有助手会话派生执行者；下文的 launcher / WakeRequest 流程是后续设计。已有四客户端验收使用预定义子任务和外层脚本编排，尚不证明原生子代理的自主拆解或长期接续。
+首次接入请从[Agent 快速接入与主子任务闭环](agent-quickstart.md)开始：`agent.py` 提供一次配置后的简单任务命令、主/子 Agent 提示模板、验收与恢复。当前通过已有助手会话派生执行者；下文的 launcher / WakeRequest 流程是后续设计。历史四客户端验收与新的便捷 Skill 验收分别记录，不能互相替代。
 
 ## Skill 是日常接入入口
 
@@ -50,6 +50,8 @@ begin/create/claim/start 是多个可分别提交的操作。客户端或服务�
 | 会话重连拿到旧回执 | 回执用于确认过去的提交；开始外部工作前另核对当前 Task/Assignment/Run 与会话归属 |
 
 command_id 的幂等范围跨同一 actor/authority 的所有任务与操作，因此每一步使用不同 ID；同一 session ID 不能充当所有核心命令的 ID。应用组合操作记录也需要版本和幂等规则。
+
+当前 `agent.py` 在私有 profile 中实现这些记录：每任务独立会话与检查点、每写步骤的原请求与回执，以及串行写锁。`take` 组合 begin/claim/start；`submit` 与 `finish` 分别返回交付和会话结束事实。`resume` 只读核对，`retry --operation ID` 原字节重放。存在未决写入时拒绝生成新业务写入；每次新写与重放前核对服务、协议和实际 Actor，防止凭据轮换把历史意图带到另一个身份。
 
 ## 委派与唤起链路（唤起待 S4）
 

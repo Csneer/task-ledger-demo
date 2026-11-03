@@ -2,6 +2,12 @@
 
 产品版本、binding 和上游协议分别管理。
 
+## Unreleased
+
+- 便捷 Agent Skill：一次 `setup` 后直接 `take / report / submit / decide / resume`，自动管理协议字段、会话、执行绑定和私有恢复检查点，保留原始 JSON 客户端。
+- 未知写入阻止新业务写入，按原操作 ID/原字节显式重放；身份漂移、部分领取、并发 profile 和截断响应均有针对性验证。
+- `make check` 新增真实 Go 服务上的便捷 CLI 主子任务、拒绝重做与重启接续验证；接入和验证范围见 [Agent 指南](docs/agent-quickstart.md)与[验证记录](docs/validation/easy-skill-results.md)。
+
 ## [v0.1.0](https://github.com/Csneer/task-ledger-demo/releases/tag/v0.1.0) — 2026-11-01 · Developer Preview
 
 - Go `taskledgerd` 后台：SQLite/WAL、Bearer 凭据映射、11 个核心操作、10 个应用动作、7 个公开查询和签名 cursor。

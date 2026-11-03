@@ -49,23 +49,32 @@ flowchart LR
 
 ### 将任务交给现有 Agent
 
-准备一个可写的私有实例、已登记的项目，以及管理员为该 Agent 提供的独立凭据和客户端配置。接入只需 Python 3：将 `skills/task-ledger/` 整个目录放到客户端可读取的位置，让助手显式读取 `SKILL.md` 即可；支持 skills 的宿主也可安装该目录。当前没有一键注册发证，身份与凭据准备步骤见[快速接入指南](docs/agent-quickstart.md)。公开演示站提供浏览和游客投稿，Agent 的执行写入使用私有 API。
+准备一个可写的私有实例、已登记的项目，以及管理员为该 Agent 提供的独立凭据。接入只需 Python 3：将 `skills/task-ledger/` 整个目录放到客户端可读取的位置，让助手读取 `SKILL.md`；支持 skills 的宿主也可安装该目录。**一次 setup，之后用任务 ID 直接领取、汇报和交付，无需手写协议 JSON。** 公开演示站提供浏览和游客投稿，Agent 的执行写入使用私有 API。
 
-将下列模板中的路径和 TaskRef 换成实际值，再交给主 Agent；凭据内容不用进入提示词：
+```sh
+python3 skills/task-ledger/scripts/agent.py --profile /private/my-agent setup \
+  --url http://127.0.0.1:8090 --credential-file /private/my-agent-bearer --project my-project
+python3 skills/task-ledger/scripts/agent.py --profile /private/my-agent take --task parent-task
+python3 skills/task-ledger/scripts/agent.py --profile /private/my-agent report --task parent-task --message '实现完成，测试中'
+python3 skills/task-ledger/scripts/agent.py --profile /private/my-agent submit --task parent-task --summary '成果、验证与限制'
+```
+
+路径、地址、项目和任务 ID 替换为实际值。便捷入口随当前源码提供；旧 v0.1.0 发行附件未包含它。身份和凭据仍由管理者准备，具体步骤见[快速接入指南](docs/agent-quickstart.md)。
+
+配置后，将下列模板中的路径和任务 ID 换成实际值，再交给主 Agent；凭据内容不用进入提示词：
 
 ```text
 读取 /absolute/path/task-ledger/SKILL.md。
-使用私有客户端配置 /private/path/main-agent/client.json，
-处理任务 {authority_id: "my-authority", task_id: "parent-task"}，
+使用私有 profile /private/path/main-agent，处理任务 parent-task，
 工作区为 /absolute/path/repository。
-先查询当前事实，登记自己的会话，再合法领取和开始。
+用 show 查询当前事实，用 take 领取并开始。
 需要分工时，在授权范围内发布各自有明确成果和验收条件的子任务，
-使用当前宿主的子代理能力交接 TaskRef、工作范围及各自的配置路径。
+使用当前宿主的子代理能力交接任务 ID、工作范围及各自的 profile 路径。
 子代理独立领取、报告并提交；你读取真实交付和产物后验收，
-汇总提交父任务，等待父任务原发起者决定。遇到未知写入结果保留原请求核对。
+汇总提交父任务，等待父任务原发起者决定。中断后 resume，未知写入按 operation ID retry。
 ```
 
-[接入指南](docs/agent-quickstart.md)包含可执行的连接检查、子 Agent 提示模板、身份准备和恢复步骤。当前 `ledger.py` 提供 `query/action/command` 与 `session-secret`，请求使用完整 JSON；尚无一条命令完成拆解、启动和汇总的编排器。
+[接入指南](docs/agent-quickstart.md)包含连接检查、常用命令、子 Agent 提示模板和恢复步骤。`agent.py` 自动处理会话、revision、执行绑定与恢复检查点；`ledger.py` 保留高级原始协议入口。主 Agent 自己决定拆解与验收，当前宿主负责启动子代理。
 
 ### 谁执行、谁验收
 
@@ -87,12 +96,12 @@ M 是 C1/C2 的创建者，因此可以决定子任务的交付；M 是 P 的承
 | 场景 | 当前证据与边界 |
 |---|---|
 | 一个父任务发出多个子任务，独立交付再汇总验收 | **已通过真实四客户端验收**：本机 Codex 发布三个子任务，Pi、Claude Code、远端 Codex 交付，主 Codex 核验并接受，汇总父任务后由测试 human issuer 接受 |
-| 各客户端通过同一 Skill 接入 | Pi 在上述验收使用 Skill；Codex、Claude Code、远端 Codex 使用同一公开契约的独立 HTTP 客户端。另有本机 Codex 用 Skill 完成代码审查任务的证据，不能推广成所有宿主适配均已通过 |
-| 原生子代理自由拆解、递归分工与代码集成 | **尚未完整验收**。上述三个子任务预先定义，外层 Python 脚本启动客户端；那次 Codex 验收关闭了 `multi_agent`，不是原生子代理树测试 |
-| 回写、断线核对与正常重启 | 已有进展报告、正式交付、持久请求意图、原 ID 重放和重启接续证据；当前 Skill 不自动恢复模型进程或上下文 |
+| 简单 Skill 命令接入 | **已验证**：配置后无需手写协议 JSON，自动处理 session、revision 和执行字段；27 项客户端测试及真实 Go HTTP smoke 通过。原始客户端仍保留 |
+| 主 Agent 自行拆分、原生子代理执行和代码集成 | **Codex 已验证**：主 Agent 自行拆出核心和 CLI 两个代码子任务，原生派生两个独立身份执行者，读取产物、复验并逐项接受；含明确的拒绝重做，最终 33 项代码测试通过。更深递归、Claude/Pi 的原生派生尚未逐一重跑 |
+| 回写、断线核对、重启与新上下文接续 | **已验证**：未知响应原样重放、服务重启，以及全新主 Agent 上下文读取 Skill/简短交接/profile，复用原 session/Assignment/Run 完成父交付。模型进程和完整聊天上下文不会自动恢复 |
 | 后台自动派发、唤起、长期 handoff | 尚未实现。当前宿主负责启动和协调，服务不因子任务完成自动推进父任务 |
 
-详情见[真实客户端验收](docs/validation/s3-agent-acceptance.md)、[Codex Skill 审查验收](docs/validation/frontend-results.md)与[代码协作约定](skills/task-ledger/references/collaboration.md)。下一步需要补的是各宿主原生子代理的真实代码任务，以及主会话压缩或中断后接续验收；不能用合成演示轨迹代替这些证据。
+本轮过程和精确边界见[便捷 Skill 与原生子代理验收](docs/validation/easy-skill-results.md)。历史[四客户端验收](docs/validation/s3-agent-acceptance.md)与[Codex Skill 审查验收](docs/validation/frontend-results.md)分别保留，代码分工遵循[协作约定](skills/task-ledger/references/collaboration.md)。测试 human issuer 不代表真人已批准，也不把本轮 Codex 结果推广为所有宿主的原生派生都已通过。
 
 ## 快速开始
 

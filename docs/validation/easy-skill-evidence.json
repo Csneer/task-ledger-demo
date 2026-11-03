@@ -1,0 +1,196 @@
+{
+  "date": "2026-11-03",
+  "kind": "isolated native Agent code exercise",
+  "authority": "easy-skill-smoke",
+  "project": "easy-skill",
+  "host": "Codex native collaboration tools",
+  "dispatch": [
+    "collaboration.spawn_agent",
+    "collaboration.followup_task"
+  ],
+  "main_contexts": [
+    "/root/native_lead_first",
+    "/root/native_lead_resume"
+  ],
+  "children": [
+    "/root/native_lead_first/core_executor",
+    "/root/native_lead_first/cli_executor"
+  ],
+  "client": "skills/task-ledger/scripts/agent.py",
+  "handwritten_business_json": false,
+  "recovery": {
+    "method": "fresh Agent without inherited history; SKILL.md + HANDOFF.md + persisted profile",
+    "session_id": "session-c0471818b1824af087357a1fca7860b6",
+    "assignment_id": "assignment-2",
+    "run_id": "run-3",
+    "generation": 1,
+    "session_final_state": "ended",
+    "pending_operations": 0,
+    "replacement_parent_created": false
+  },
+  "verification": {
+    "command": "python3 -m unittest discover -s tests -v",
+    "passed": 33,
+    "issuer_independent_rerun": true
+  },
+  "tasks": [
+    {
+      "task": {
+        "authority_id": "easy-skill-smoke",
+        "task_id": "native-code-parent"
+      },
+      "state": "completed",
+      "revision": 8,
+      "generation": 1,
+      "issuer": {
+        "id": "owner",
+        "kind": "human"
+      },
+      "relations": [],
+      "records": [
+        {
+          "record_type": "Run",
+          "basis_version": 1,
+          "run_id": "run-3"
+        },
+        {
+          "record_type": "Submission",
+          "basis_version": 1,
+          "run_id": "run-3",
+          "submission_id": "submission-7"
+        },
+        {
+          "record_type": "Decision",
+          "basis_version": 1,
+          "decision_id": "decision-8",
+          "evaluated_version": 1,
+          "outcome": "accepted",
+          "reason": "Isolated test issuer acceptance: inspected actual validator and CLI, independently reran all 33 tests successfully, verified both child acceptances and the transparent reject/reopen generation-2 drill. Fresh main context resumed exactly the original session, assignment-2, run-3 and generation 1, then submitted the integrated parent. This is automated test-actor acceptance, not live user approval.",
+          "submission_id": "submission-7"
+        }
+      ]
+    },
+    {
+      "task": {
+        "authority_id": "easy-skill-smoke",
+        "task_id": "native-manifest-core"
+      },
+      "state": "completed",
+      "revision": 6,
+      "generation": 1,
+      "issuer": {
+        "id": "lead",
+        "kind": "agent"
+      },
+      "relations": [
+        {
+          "kind": "parent",
+          "target": {
+            "authority_id": "easy-skill-smoke",
+            "task_id": "native-code-parent"
+          }
+        }
+      ],
+      "records": [
+        {
+          "record_type": "Run",
+          "basis_version": 1,
+          "run_id": "run-3"
+        },
+        {
+          "record_type": "Submission",
+          "basis_version": 1,
+          "run_id": "run-3",
+          "submission_id": "submission-5"
+        },
+        {
+          "record_type": "Decision",
+          "basis_version": 1,
+          "decision_id": "decision-6",
+          "evaluated_version": 1,
+          "outcome": "accepted",
+          "reason": "Read manifest_validator.py and tests/test_core.py and the actual submission. Independently reran python3 -m unittest discover -s tests -p test_core.py -v: all 16 tests pass. Verified agreed API, validation before hashing, duplicate/traversal/absolute/symlink/nonregular rejection, and ordered content results. Scoped core acceptance satisfied.",
+          "submission_id": "submission-5"
+        }
+      ]
+    },
+    {
+      "task": {
+        "authority_id": "easy-skill-smoke",
+        "task_id": "native-manifest-cli"
+      },
+      "state": "completed",
+      "revision": 13,
+      "generation": 2,
+      "issuer": {
+        "id": "lead",
+        "kind": "agent"
+      },
+      "relations": [
+        {
+          "kind": "parent",
+          "target": {
+            "authority_id": "easy-skill-smoke",
+            "task_id": "native-code-parent"
+          }
+        }
+      ],
+      "records": [
+        {
+          "record_type": "Run",
+          "basis_version": 1,
+          "run_id": "run-3"
+        },
+        {
+          "record_type": "Submission",
+          "basis_version": 1,
+          "run_id": "run-3",
+          "submission_id": "submission-6"
+        },
+        {
+          "record_type": "Decision",
+          "basis_version": 1,
+          "decision_id": "decision-7",
+          "evaluated_version": 1,
+          "outcome": "rejected",
+          "reason": "Transparent planned rework drill, not an implementation defect: inspected CLI/README/tests and independently ran all 32 existing tests successfully. Request one extra concrete subprocess robustness regression before acceptance: use a nested artifact path containing Unicode and spaces, write more than 2 MiB of deterministic binary content, assert exact expected/actual SHA and exit 0, then change bytes beyond the first 1 MiB and assert mismatch with exit 1 and updated actual digest. Retain all prior tests and disjoint ownership. This recorded rejection intentionally exercises reopen and a new execution generation.",
+          "submission_id": "submission-6"
+        },
+        {
+          "record_type": "Run",
+          "basis_version": 1,
+          "run_id": "run-10"
+        },
+        {
+          "record_type": "Submission",
+          "basis_version": 1,
+          "run_id": "run-10",
+          "submission_id": "submission-12"
+        },
+        {
+          "record_type": "Decision",
+          "basis_version": 1,
+          "decision_id": "decision-13",
+          "evaluated_version": 1,
+          "outcome": "accepted",
+          "reason": "Read actual generation 2 submission-12 and added regression test. Independently reran python3 -m unittest discover -s tests -v: all 33 tests pass. Extra test verifies nested Unicode/spaces path, 2097408 binary bytes, exact success digest, late byte tampering at 1048613, mismatch JSON and exit 1. Previous 32 tests retained. CLI, README, exit-code contract and planned reject/reopen/new-generation drill are complete; no unresolved scoped items.",
+          "submission_id": "submission-12"
+        }
+      ]
+    }
+  ],
+  "artifacts": {
+    "manifest_validator_py": "17e90f00b5f824cb4c749240723fda397248fe32abbe8e763d220bfe778c7d38",
+    "validate_manifest_py": "8896f199917042b37f8a6869b9cd0387d7a4a75514ebd1496d530341a8e93f16",
+    "test_core_py": "ba8bf14a1682b3673ed1f32e5d06d13b8fe318ca981aaa542bf94a90ad1f44a1",
+    "test_cli_py": "b709c54f36e8ffa61b8f24ba86901e64b4ad20736f28b585d3341b2319889212",
+    "readme_md": "87a8d30fbb0ed9d0588bdb45d608e33422492b68a3d5c7c7382448befadb97e5"
+  },
+  "limitations": [
+    "Controlled rework drill, not an alleged code defect",
+    "Test human issuer, not live human approval",
+    "Deliberate new-context handoff, not automatic context reconstruction",
+    "Only Codex native spawning exercised in this round",
+    "Raw code exercise retained in private temporary workspace, not shipped product functionality"
+  ]
+}

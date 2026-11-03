@@ -1,53 +1,80 @@
 ---
 name: task-ledger
-description: 通过 Task Ledger 的公开 HTTP 协议登记实施会话、发布或领取任务、汇报交付与验收，并保留可恢复的写请求；用于已配置服务的人与 Agent 协作、子任务分工和代码交付，不提供后台自动唤起。
+description: 使用简单命令连接 Task Ledger，领取、拆分、汇报、交付和验收任务，并在中断后核对恢复；适用于已有服务地址、项目和独立凭据的 Agent 协作。
 ---
 
 # Task Ledger
 
-使用 `ledger-http-draft-1` / `task-core-draft-1`，让人与 Agent 的任务、执行和验收留下可接续事实。后端权限来自已配置凭据，不自报 Actor/Host，也不直读服务数据库。
+通过 `scripts/agent.py` 使用任务协议。使用 Python 3 标准库及 POSIX 文件权限/锁（已在 Linux 验证）；常规操作不用编写 JSON、revision、session proof 或 Run ID。服务记录任务事实，当前宿主负责选择和启动子代理。
 
-## 接入
+## 接入一次
 
-此目录可整体复制到客户端支持的 skills 目录；也可直接读取本文件调用脚本，无需服务端 SDK。需要 Python 3 标准库。配置与状态保存在工作仓库之外的私有目录，目录 `0700`，配置、Bearer 文件、session 文件均为 `0600`。管理员先登记稳定身份，再带外配置凭据；显示名和模型资料不能授予权限。
+服务管理者提供私有 API 地址、项目 ID、该 Agent 的凭据文件。将整个 Skill 目录放到宿主可读取的位置。选择仓库外的私有 profile 目录，每个独立 Agent 使用自己的凭据和 profile。
 
-配置示例（路径相对配置文件；不把真实凭据放进文档或参数）：
-
-```json
-{"service_url":"http://127.0.0.1:8090","credential_file":"bearer","intent_dir":"intents"}
-```
-
-HTTPS 可加 `ca_file` 指定受信 CA；HTTP 仅接受显式 loopback IP。Bearer 文件存 32 随机字节的无填充 base64url 文本，由服务管理者提供。脚本不跟随重定向，不自动使用系统代理，不忽略 TLS 校验。
+同一 profile 的命令串行运行（包括查询），避免锁冲突；不同子代理的独立 profile 可并行。
 
 ```sh
-python3 <skill-dir>/scripts/ledger.py query --config <config.json> --request <query.json>
-python3 <skill-dir>/scripts/ledger.py action --config <config.json> --request <action.json>
-python3 <skill-dir>/scripts/ledger.py command --config <config.json> --request <command.json> --session-file <session.json>
+python3 <skill-dir>/scripts/agent.py --profile <private-profile> setup \
+  --url http://127.0.0.1:8090 --credential-file <private-bearer-file> --project <project-id>
+python3 <skill-dir>/scripts/agent.py --profile <private-profile> check
 ```
 
-请求文件须为完整 JSON 封套，字段与最小链路见 [HTTP 消息与恢复](references/http.md)。脚本发送原始 UTF-8 字节，不把精确数字转为浮点数。stdout 为响应，stderr 为 HTTP 状态；退出码 `0` 表示 HTTP 200，`2` 表示其他 HTTP 状态，`1` 表示本地或连接错误。将各步响应保存在私有目录中（例如先设 `umask 077`，再将 stdout 重定向到独立文件），以核对组合步骤的中间结果；不能只保存最终一步。
+`setup` 核对实际 Actor、authority、版本和项目，保存配置与恢复资料；不会注册身份或签发凭据。凭据文件须由当前用户持有且权限 `0600`，profile 目录 `0700`。HTTPS 可用 `--ca-file`；HTTP 只接受明确的 loopback IP。公开 `task.pokison.cn` 提供浏览和游客投稿，Agent 使用管理者给出的私有入口或 SSH 转发。
 
-## 工作链路
+下文以 `ledger` 代表 `python3 <skill-dir>/scripts/agent.py --profile <private-profile>`，并非要求额外安装命令。
 
-1. 查询 `service.info` 和 `workspace.snapshot`，核对 authority、项目、身份与当前任务。发现不兼容协议或没有合法凭据时说明缺口；不要换身份绕过。
-2. 用 `session-secret --session-id <稳定ID> --output <session.json>` 先持久保存本会话证明。输出只有 `session_id/proof_digest`，再以独立 request ID 调用 `session.begin`。重复运行同一生成命令会读取已有证明，不轮换。会话来源只记录公开摘要。
-3. 已有任务先读当前事实，再 `task.claim`；自发任务先用自己的身份 `task.create`，随后领取。指定 Agent 只限制领取资格，不意味着已经承接。每个写步骤使用不同、稳定的 ID。
-4. 从当前 Task 读取 assignment、generation、expectation version，调用 `run.start`。后续 `run.report/submit/fail` 使用当前 session 证明和 Run ID；每步重读或采用刚返回的 Task revision，避免凭旧快照继续写。
-5. 提交结果后由不可变 issuer 读取实际交付并 `task.decide`。Agent 自发任务可以如实自验收，但不能称为人的批准；需要人验收的任务由人发起。其他管理员没有代验收权。
-6. 明确 `session.end` 并记录实施摘要；它不会完成 Task 或释放承接。跨 Agent 接续需合法 release 后重新 claim/start；同身份换会话需显式 `session.transfer` 和双方证明，不使用别人的 session ID 猜测接管。
+## 日常工作
 
-## 代码分工与子任务
+```sh
+ledger tasks
+ledger show --task task-id
+ledger take --task task-id
+ledger report --task task-id --message '实现完成，正在运行针对性测试'
+ledger submit --task task-id --summary '实现、验证结果和限制' --artifact 'https://example.org/review/123'
+ledger finish --task task-id --outcome done --summary '已提交，等待发起者验收'
+```
 
-需要委派子 Agent、多人共用仓库、独立 worktree、并行尝试或集成代码时，按需读取 [协作与交付约定](references/collaboration.md)。先把任务目标、文件归属、工作区方式、基线和验收责任写清，再发布任务；接收方通过自己的实施会话主动领取。默认使用当前会话可用的子 Agent 能力，不请求后台 launcher，不将发布、唤起或子 Agent 已启动视为领取成功。
+先读取任务和实际工作区。`take` 自动保存会话证明，依次登记、领取、开始，每一步分别持久保存请求和回执；成功后才执行任务。已有本 profile 的有效执行时会核对并接续，不创建第二个承接。`report` 写进展，`submit` 写正式交付并返回 `submission_id`。`--artifact` 可重复，仅保存引用，不上传文件；引用应能被验收方实际读取。
 
-共用 checkout 时不同任务只改各自明确拥有的文件；独立试验或需要独立提交历史时使用单独 worktree。工作区方式不改变单 Task 单当前承接者的协议规则。发布任务不授权 commit、push 或合并；这些动作沿用用户和仓库已有授权。
+`finish` 只结束本 profile 所持的服务会话，不完成任务、不释放承接。提交后的 Task 是 `submitted`，只有不可变的 issuer 接受后才是 `completed`。根据实际情况结束会话，不用 `finish` 掩盖未提交或未知结果。
 
-## 结果未知与恢复
+## 拆分与验收
 
-写操作在发送前将原请求完整落入私有 intent 目录，fsync 后原子发布。相同服务、配置路径、请求类型和 ID 再次调用时要求请求字节完全相同；即使服务器允许某些数字写法等价，本助手也不替换已保存的原文。不要删掉意图文件来强行复用 ID。
+主 Agent 持有父任务时可以发布多个子任务：
 
-超时、连接中断、5xx 或意外响应都不能证明没提交。保留原封套和 ID，明确重试同一步以取得历史回执，再查询当前事实。脚本不自动重试，不把 create→claim→start 当一笔事务，也不会为了恢复创建替代 Task。回执是历史，不授予当前执行权。
+```sh
+ledger create --parent parent-id --target worker-b \
+  --goal '实现独立模块' --expected-result '约定功能和测试通过' \
+  --constraint '只修改指定文件；保留其他贡献者的修改'
+```
 
-session 证明只从独立私有文件形成请求头；`--target-session-file` 用于 transfer 的目标证明。秘密不放入正文、产物、报告或提示词。begin/rotate 的 digest 属于请求内容，原请求会保存在私有意图记录中，公开查询不会返回它。
+输出含新 `task_id`；也可通过 `--task` 指定 ID。`--target` 是已登记 Agent 的 ID，仅限定领取资格。创建成功后，用当前宿主原生派生工具交接任务 ID、Skill 路径、工作范围及接收者自己的 profile 路径。子代理读取本 Skill，再独立 `take → report → submit`。不要借用主 Agent 的凭据或 session proof；秘密内容不进入任务或提示词。
 
-发生冲突、身份/会话拒绝或输出不符合预期时，先核对服务公开事实再决定修正，不盲目重领或重做外部副作用。后台唤起、自动调度和 handoff 不由此 Skill 实现；使用当前会话的子 Agent 能力时仍按公开协议领取、交付与验收。
+父 Agent 用 `show` 读取实际 Submission，检查产物并复验后，明确指定该交付：
+
+```sh
+ledger decide --task child-id --submission submission-id --outcome accepted --reason '已读取产物并复验通过'
+# 需要返工时：
+ledger decide --task child-id --submission submission-id --outcome rejected --reason '具体未满足的验收条件'
+ledger reopen --task child-id --reason '按验收反馈重新执行'
+```
+
+子代理再 `take` 会进入新的承接轮次，旧交付保留。子任务全部通过后，主 Agent 集成验证并 `submit` 父任务，等待父任务原发起者决定。父子关系不传递验收权，也不自动推进父状态。
+
+涉及共享 checkout、worktree、基线和代码集成时，读取 [协作约定](references/collaboration.md)。每个任务明确文件归属，保留其他人的修改；发布任务不额外授予 commit/push/合并权限。
+
+## 中断后接续
+
+```sh
+ledger resume                  # 核对本 profile 的会话与未决操作
+ledger resume --task task-id   # 核对 Task、Session 和当前执行绑定
+ledger retry --operation operation-id
+```
+
+`resume` 只读服务事实，不领取、不重做工作。原 profile 和证明仍在时，新模型会话可以在核对后继续；还要检查实际文件、测试和外部副作用，任务快照不等于模型完整上下文。
+
+超时、断线或意外响应时，工具保留原请求并报告 operation ID，阻止新的业务写入。用 `retry` 原 ID、原字节重放后再 `resume`，不要删状态或改请求绕过未知结果。历史成功回执只证明过去写入成功，不能证明现在仍有执行资格。曾经未知的请求后来收到 401/403 仍可能已提交，应修复访问条件再核对。
+
+`take` 中途明确失败保留已成功阶段，修正原因后再次 `take` 会核对原会话。`release --task ID --reason TEXT` 明确释放当前承接，但保留原定向策略。换 Actor 时需要 issuer 更新领取策略；同 Actor 换 session 的 transfer 及其他高级操作，按需读取 [HTTP 消息与恢复](references/http.md)，使用兼容的 `scripts/ledger.py` 原始入口。
+
+CLI 输出 JSON；保留输出中的 ID 与事实。不需要加载 profile 内全部历史请求或完整任务时间线来开始每次工作。

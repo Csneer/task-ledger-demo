@@ -1,9 +1,10 @@
-.PHONY: check fmt-check protocol-check contract-check release release-smoke browser-check
+.PHONY: check fmt-check protocol-check contract-check skill-smoke release release-smoke browser-check
 
-# Runtime checks cover the trusted Go API, not HTTP or independent clients.
+# Runtime checks plus isolated HTTP verification of the high-level Skill client.
 check: fmt-check protocol-check contract-check
 	go test -race ./...
 	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skills/task-ledger/scripts -p 'test_*.py'
+	$(MAKE) skill-smoke
 	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools -p 'test_*.py'
 	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s deploy/public-demo -p 'test_*.py'
 	node --check deploy/public-demo/bootstrap.js
@@ -19,6 +20,13 @@ protocol-check:
 
 contract-check:
 	go run ./tools/check-contract
+
+skill-smoke:
+	@set -eu; \
+	ledger_smoke_dir="$$(mktemp -d -t task-ledger-skill-check-XXXXXX)"; \
+	go build -o "$$ledger_smoke_dir/taskledgerd" ./cmd/taskledgerd; \
+	PYTHONDONTWRITEBYTECODE=1 python3 scripts/easy_skill_smoke.py \
+	  --daemon "$$ledger_smoke_dir/taskledgerd" --dir "$$ledger_smoke_dir/run"
 
 release:
 	bash tools/build-release.sh

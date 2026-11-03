@@ -2,6 +2,8 @@
 
 日期：2026-10-31。结论：**本机 Codex、Pi、Claude Code 与远端 Codex 共四个客户端的任务闭环通过；远端经加密 SSH 转发访问同一 authority。完整 S3 真人日常验收仍未完成。**
 
+后续补充：2026-11-03 的[便捷 Skill 验收](easy-skill-results.md)另行验证了 Codex 原生主子代理、自行拆分实际代码任务、明确返工和新主上下文接续。以下保留本次历史验收的原始范围，不将后续结果归入本轮。
+
 本轮实现公开 Go 后台和轻量 Skill，并让实际 Agent CLI 通过 HTTP 操作隔离的合成任务。核心协议固定为 `task-core-draft-1`，上游 commit 为 `e6dae9a6127537af94f0f5127e8d590a1e6a3f1a`；本轮没有修改上游 Schema 或语义。
 
 ## 实现范围
